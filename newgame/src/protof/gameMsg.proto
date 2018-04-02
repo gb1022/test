@@ -1,0 +1,28 @@
+package protof;
+
+message Message1
+{
+	optional PING ping                        = 100;
+	optional CS_LoginMessage cs_login_message = 101;
+	optional SC_LoginMessage sc_login_message = 102;
+
+
+    message PING
+    {   
+        required float              time        = 1; //时间
+        optional int32              serTime     = 2; //服务器时间 时间戳
+    }
+	message CS_LoginMessage
+	{
+	    required int32 id = 1; 
+	    required string name = 2;
+	    required int32 opt = 3; 
+	}
+
+	message SC_LoginMessage
+	{
+	    required int32 code = 1; 
+	    required string name = 2;
+	    required int32 loginTime = 3; 
+	}
+}
