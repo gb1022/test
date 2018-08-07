@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+//	"fmt"
 
 func Login(name string, room string) {
 	CreatPlayer(name, room)

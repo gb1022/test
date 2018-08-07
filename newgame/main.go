@@ -11,6 +11,7 @@ import (
 	"gbframe"
 	"protof"
 	//	"sync"
+
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -39,21 +40,25 @@ type Server struct {
 const addr = ":9999"
 
 var NetServers = map[string]*Server{}
-var pro = 0
 
-func (s *Server) ReadMessage(msg []byte) *protof.Message1 {
+func (s *Server) ReadMessage(msg []byte) (*protof.Message1, int) {
 	fmt.Println("recv msg:", string(msg))
+	pMsg, msgId, err := UnmarshalRecMsg(msg)
+	if err != nil {
+		return nil, 0
+	}
 	cs_msg := &protof.Message1{}
-	err := proto.Unmarshal(msg, cs_msg)
+	err = proto.Unmarshal(pMsg, cs_msg)
 	if err != nil {
 		fmt.Println("proto Unmarshal is error,by:", err)
-		return nil
+		return nil, 0
 	}
-	return cs_msg
+	fmt.Println("cs_msg:", cs_msg, "msgid:", msgId)
+	return cs_msg, msgId
 
 }
 
-func (s *Server) WriteMessage() {
+func (s *Server) WriteMessage(msgid int) {
 	code := proto.Int32(0)
 	name := proto.String("gb_test")
 	nowtime := time.Now()
@@ -66,9 +71,9 @@ func (s *Server) WriteMessage() {
 	}
 	fmt.Println("sc_msg:", sc_msg.String())
 	data, _ := proto.Marshal(sc_msg)
-	//	n := len(data)
-	fmt.Println("data:", data)
-	s.Service.TranData.OutData <- data
+	send_data := MarshalSendMsg(data, msgid)
+	fmt.Println("data:", send_data)
+	s.Service.TranData.OutData <- send_data
 }
 
 func (s *Server) GamePosses() {
@@ -80,7 +85,7 @@ func (s *Server) GamePosses() {
 		case <-ticker.C:
 			s.sec += 1
 			fmt.Println("update,sec:", s.sec)
-			if s.sec >= 6 || s.Service.TranData.State == false {
+			if s.sec >= 20 || s.Service.TranData.State == false {
 				//				s.Service.State = false
 				//				s.ConnClose(s.sess)
 				return
@@ -90,9 +95,10 @@ func (s *Server) GamePosses() {
 				fmt.Println("s.Service.TranData.State :", s.Service.TranData.State)
 				break
 			}
-			s.ReadMessage(inbyte)
-			//todo
-			s.WriteMessage()
+			recMsg, msgid := s.ReadMessage(inbyte)
+			mid := protof.Message1_ID(msgid)
+			HandleProto(mid, recMsg)
+			s.WriteMessage(msgid)
 			s.sec = 0
 		}
 	}
@@ -200,7 +206,8 @@ func Start(addr string, prt string) {
 	s.Service.Wg.Wait()
 }
 
-func HandleProto(id protof.Message1_ID) {
+//协议对应接口
+func HandleProto(id protof.Message1_ID, RecMsg *protof.Message1) {
 	switch id {
 	case protof.Message1_PIND:
 	//todo
