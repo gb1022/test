@@ -2,12 +2,17 @@ package protof;
 
 message Message1
 {
-	optional PING ping                        = 100;
+	enum ID{
+		PIND = 100;
+		CS_LOGINMESSAGE =101;
+		SC_LOGINMESSAGE = 102;
+	}
+	optional Ping ping                        = 100;
 	optional CS_LoginMessage cs_login_message = 101;
 	optional SC_LoginMessage sc_login_message = 102;
 
 
-    message PING
+    message Ping
     {   
         required float              time        = 1; //时间
         optional int32              serTime     = 2; //服务器时间 时间戳
