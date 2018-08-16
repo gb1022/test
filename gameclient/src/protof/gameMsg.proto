@@ -6,10 +6,19 @@ message Message1
 		PIND = 100;
 		CS_LOGINMESSAGE =101;
 		SC_LOGINMESSAGE = 102;
+        CS_FIGHTDATA = 103;
+		SC_FIGHTDATA = 104;
+		CS_FIGHTSTART = 105;
+		SC_FIGHTSTART = 106;
 	}
 	optional Ping ping                        = 100;
 	optional CS_LoginMessage cs_login_message = 101;
 	optional SC_LoginMessage sc_login_message = 102;
+	optional CS_FightData cs_fight_data = 103;
+	optional SC_FightData sc_fight_data = 104;
+	optional CS_FightStart cs_fight_start = 105;
+	optional SC_FightStart sc_fight_start = 106;
+	
 
 
     message Ping
@@ -29,5 +38,37 @@ message Message1
 	    required int32 code = 1; 
 	    required string name = 2;
 	    required int32 loginTime = 3; 
+	}
+	
+	message CS_FightData
+	{
+		required int32 speed =1; //速度
+		required int32 attack = 2; //进攻力
+		required int32 move_x = 3; //移动x
+		required int32 move_y = 4; //移动y
+	}
+	
+	message SC_FightData
+	{
+		required int32 round = 1;//回合数
+		required int32 result = 2;//结果 0:无 1:赢 2:输 3:平
+		required FightStateData my_side = 3;//己方
+		required FightStateData other_side = 4; //对方
+	}
+	
+	message FightStateData
+	{
+		required string name = 1; //名字
+		required int32 map_x = 2; //位置地图x轴
+		required int32 map_y = 3; //位置地图y轴
+		required int32 life = 4; //生命值
+	}
+	
+	message CS_FightStart{
+		required bool isstart = 1;//是否开始
+	}
+	message SC_FightStart{
+		required bool isstartA = 1;//自己是否准备好了
+		required bool isstartB = 2;//对方是否准备好了
 	}
 }
