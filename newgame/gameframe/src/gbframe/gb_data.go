@@ -3,7 +3,6 @@ package gbframe
 import (
 	"fmt"
 	"net"
-	//	"protof"
 )
 
 type TransportData struct {
@@ -22,7 +21,7 @@ func (t *TransportData) ReadData() {
 		return
 	}
 	t.InData <- buf[:n]
-	fmt.Println("eeeeeeeeeeeeeeee")
+	//	fmt.Println("eeeeeeeeeeeeeeee")
 }
 
 func (t *TransportData) WriteData() {

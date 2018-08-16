@@ -1,13 +1,9 @@
 package gbframe
 
 import (
-	//	"crypto/md5"
-	//	"encoding/hex"
 	"fmt"
 	"net"
-	//	"protof"
 	"sync"
-	//	"time"
 )
 
 type Service struct {
@@ -27,8 +23,9 @@ func (s *Service) ServiceProcess() {
 	s.Wg.Add(1)
 	for {
 		s.TranData.Prosses()
-		fmt.Println("dddddddddddddddddddddddd, state:", s.TranData.State)
+		//		fmt.Println("dddddddddddddddddddddddd, state:", s.TranData.State)
 		if s.TranData.State == false {
+			s.State = false
 			s.ConnClose()
 			return
 		}
@@ -59,16 +56,16 @@ func (s *Service) ConnClose() {
 //}
 
 func CreateService(listener *net.TCPListener, id string) (*Service, error) {
-	fmt.Println("aaaaaaaaaaaaaaaaa")
+	//	fmt.Println("aaaaaaaaaaaaaaaaa")
 	conn, err := Connect(listener)
-	fmt.Println("bbbbbbbbbbbbbbb")
+	//	fmt.Println("bbbbbbbbbbbbbbb")
 	if err != nil {
 		return nil, err
 	}
 	t := CreateTransportData(conn)
-	fmt.Println("ccccccccccccccccccc")
+	//	fmt.Println("ccccccccccccccccccc")
 	s := &Service{
-		//		Conn: conn,
+		Conn: conn,
 		//			Conn:  &conn,
 		Msg:      make(chan string),
 		Id:       id,

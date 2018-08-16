@@ -3,7 +3,6 @@ package gbframe
 import (
 	"fmt"
 	"net"
-	//	"reflect"
 )
 
 //type TcpNetAddr struct {

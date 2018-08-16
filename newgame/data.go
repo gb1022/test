@@ -4,22 +4,35 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	//	"net"
+	"crypto/md5"
+	"encoding/hex"
+	//	"net"
 )
 
 type Player struct {
-	Name         string
-	Room         string
-	MyFightDatas map[int]*FightData
-	BodyData     *SelfData
+	Name string
+	//	Room         string
+	//	MyFightDatas map[int]*FightData
+	//	BodyData     *SelfData
+	//	Conn      *net.Conn
+	Server_sess string
+	MatchTime   int
+	MatchId     int
 }
 
-type SelfData struct {
-	Life int
+func (s *Server) AddPlayerInPool(player *Player) {
+	MatchPool[s.sess] = player
 }
 
-type FightData struct {
-	MapX int
-	MapY int
+func GetPlayerBySess(sess string) *Player {
+	for k, p := range MatchPool {
+		if sess == k {
+			return p
+		}
+	}
+	return nil
+
 }
 
 //解析接收的消息
@@ -46,4 +59,39 @@ func MarshalSendMsg(msg []byte, msgId int) []byte {
 	buff = append(buff, idb...)
 	buff = append(buff, msg...)
 	return buff
+}
+
+func MakeSession(str string, pass string) string {
+	pass_byte := []byte(pass)
+	if pass == "" {
+		pass_byte = nil
+	}
+	h := md5.New()
+	h.Write([]byte(str))
+	cipher := h.Sum(pass_byte)
+	md5_str := hex.EncodeToString(cipher)
+	return md5_str
+}
+
+func CreatPlayer(name string, sess string, opt int) *Player {
+	fmt.Println("CreatPlayer, sess:", sess)
+	player := &Player{
+		Name: name,
+		//		Conn:      conn,
+		Server_sess: sess,
+		MatchTime:   0,
+		MatchId:     opt,
+	}
+	return player
+
+}
+
+func CreateRobot() *Player { //创建机器人
+	rp := &Player{
+		Name:        "robot",
+		Server_sess: "robot1",
+		MatchTime:   0,
+		MatchId:     0,
+	}
+	return rp
 }
