@@ -1,7 +1,7 @@
 package gbframe
 
 import (
-	"fmt"
+	//	"fmt"
 	"net"
 	"sync"
 )
@@ -37,7 +37,7 @@ func (s *Service) ConnClose() {
 
 	s.TranData.Conn.Close()
 	s.Wg.Done()
-	fmt.Println("Service connClose!!!!!!!!!!!!!!!!!!")
+	//	fmt.Println("Service connClose!!!!!!!!!!!!!!!!!!")
 }
 
 //func (s *Service) hanldClient() {

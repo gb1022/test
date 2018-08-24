@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/binary"
 	"errors"
-	"fmt"
+
+	"gbframe"
 	//	"net"
-	"crypto/md5"
-	"encoding/hex"
+
 	//	"net"
 )
 
@@ -19,10 +19,32 @@ type Player struct {
 	Server_sess string
 	MatchTime   int
 	MatchId     int
+	Score       int //赢一场 得3分，平一场 得1分，输了 不得分
 }
 
-func (s *Server) AddPlayerInPool(player *Player) {
-	MatchPool[s.sess] = player
+const (
+	PLAYERNAMEKEY  = "player_name"
+	FIGHTRECORDKEY = "fight_record:"
+	PLAYERDATAKEY  = "player:"
+	RANKDATAKEY    = "rank_data"
+)
+
+func (p *Player) IsPlayerExist() bool {
+	for _, player := range MatchPool {
+		if p.Name == player.Name {
+			return true
+		}
+	}
+	return false
+
+}
+
+func (p *Player) SaveScoreInRank() {
+	gameredis.RankDataSave(p.Name, p.Score)
+}
+
+func AddPlayerInPool(player *Player, sess string) {
+	MatchPool[sess] = player
 }
 
 func GetPlayerBySess(sess string) *Player {
@@ -40,7 +62,7 @@ func UnmarshalRecMsg(msg []byte) ([]byte, int, error) {
 	msgLen := binary.BigEndian.Uint32(msg[0:4])
 	msgId := binary.BigEndian.Uint16(msg[4:6])
 	if msgLen != (uint32(len(msg)) - uint32(4)) {
-		fmt.Println("UnmalRecMsg is error,Msg lenth is wrong!,msgLen:", msgLen, "len(msg):", len(msg))
+		gbframe.Logger_Error.Println("UnmalRecMsg is error,Msg lenth is wrong!,msgLen:", msgLen, "len(msg):", len(msg))
 		return nil, 0, errors.New("Msg lenth is wrong")
 	}
 	rmsg := msg[6:]
@@ -61,26 +83,15 @@ func MarshalSendMsg(msg []byte, msgId int) []byte {
 	return buff
 }
 
-func MakeSession(str string, pass string) string {
-	pass_byte := []byte(pass)
-	if pass == "" {
-		pass_byte = nil
-	}
-	h := md5.New()
-	h.Write([]byte(str))
-	cipher := h.Sum(pass_byte)
-	md5_str := hex.EncodeToString(cipher)
-	return md5_str
-}
-
 func CreatPlayer(name string, sess string, opt int) *Player {
-	fmt.Println("CreatPlayer, sess:", sess)
+	gbframe.Logger_Info.Println("CreatPlayer, sess:", sess)
 	player := &Player{
 		Name: name,
 		//		Conn:      conn,
 		Server_sess: sess,
 		MatchTime:   0,
 		MatchId:     opt,
+		Score:       0,
 	}
 	return player
 

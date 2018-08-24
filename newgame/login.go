@@ -1,26 +1,36 @@
 package main
 
 import (
-	"fmt"
+	//	"fmt"
 	//	"net"
+	"gbframe"
 	"protof"
 	"time"
 
 	"github.com/golang/protobuf/proto"
 )
 
-func (s *Server) Login(recMsg *protof.Message1) {
+func Login(recMsg *protof.Message1, s *Server) {
 	name := recMsg.CsLoginMessage.GetName()
-	player := CreatPlayer(name, s.sess, int(recMsg.CsLoginMessage.GetOpt()))
-	fmt.Println("player name:", name)
-	//	MathPool = append(MathPool, *player)
-	s.AddPlayerInPool(player)
-	fmt.Println("login play:", player)
 	code := proto.Int32(0)
+	gbframe.Logger_Info.Println("player name:", name)
+
+	player := gameredis.GetPlayerByName(name)
+	if player == nil {
+		player = CreatPlayer(name, s.sess, int(recMsg.CsLoginMessage.GetOpt()))
+	}
+	gbframe.Logger_Info.Println("login play:", player)
+	if player.IsPlayerExist() {
+		code = proto.Int32(1)
+	} else {
+		AddPlayerInPool(player, s.sess)
+		gameredis.redisClient.Cmd("SADD", PLAYERNAMEKEY, name)
+	}
 	sc_name := proto.String(name)
 	nowtime := time.Now()
 	ss := int32(nowtime.Unix())
 	logintime := proto.Int32(ss)
+
 	sc_login := &protof.Message1_SC_LoginMessage{
 		Code:      code,
 		Name:      sc_name,
@@ -35,10 +45,10 @@ func (s *Server) Login(recMsg *protof.Message1) {
 
 }
 
-func (s *Server) logout() {
+func loginout(s *Server) {
 	if s.Service.State == false {
 		delete(MatchPool, s.sess)
-		fmt.Println("logout,MathPool:", MatchPool)
+		gbframe.Logger_Info.Println("logout,MathPool:", MatchPool)
 	}
 
 }

@@ -10,6 +10,8 @@ message Message1
 		SC_FIGHTDATA = 104;
 		CS_FIGHTSTART = 105;
 		SC_FIGHTSTART = 106;
+		CS_GETRANK = 107;
+		SC_GETRANK = 108;
 	}
 	optional Ping ping                        = 100;
 	optional CS_LoginMessage cs_login_message = 101;
@@ -18,6 +20,8 @@ message Message1
 	optional SC_FightData sc_fight_data = 104;
 	optional CS_FightStart cs_fight_start = 105;
 	optional SC_FightStart sc_fight_start = 106;
+	optional CS_GetRank cs_get_rank = 107;
+	optional SC_GetRank sc_get_rank = 108;
 	
 
 
@@ -70,5 +74,20 @@ message Message1
 	message SC_FightStart{
 		required bool isstartA = 1;//自己是否准备好了
 		required bool isstartB = 2;//对方是否准备好了
+	}
+	
+	message CS_GetRank{
+		required int32 code = 1;//标识
+	}
+	message SC_GetRank {
+		required int32 code = 1;
+		repeated RankData rank_data = 2;
+		required RankData my_ranking = 3;
+	}
+	//排行榜信息
+	message RankData{
+		required string name = 1;
+		required int32 score = 2;
+		optional int32 ranking = 3;//排名
 	}
 }

@@ -1,7 +1,9 @@
 package gbframe
 
 import (
-	"fmt"
+	//	"fmt"
+	"crypto/md5"
+	"encoding/hex"
 	"net"
 )
 
@@ -28,7 +30,7 @@ func (t *TransportData) WriteData() {
 	for {
 		select {
 		case d := <-t.OutData:
-			fmt.Println("gbframe writedata:", d)
+			//			fmt.Println("gbframe writedata:", d)
 			t.Conn.Write(d)
 		}
 	}
@@ -51,4 +53,16 @@ func CreateTransportData(conn net.Conn) *TransportData {
 		State:   true,
 	}
 	return newTransportData
+}
+
+func MakeSession(str string, pass string) string {
+	pass_byte := []byte(pass)
+	if pass == "" {
+		pass_byte = nil
+	}
+	h := md5.New()
+	h.Write([]byte(str))
+	cipher := h.Sum(pass_byte)
+	md5_str := hex.EncodeToString(cipher)
+	return md5_str
 }

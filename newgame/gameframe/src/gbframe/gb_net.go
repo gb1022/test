@@ -1,7 +1,8 @@
 package gbframe
 
 import (
-	"fmt"
+	//fmtln"
+
 	"net"
 )
 
@@ -45,7 +46,7 @@ func ListenTcp(pro string, addr string) (*net.TCPListener, error) {
 	}
 	listener, err := net.ListenTCP(pro, netaddr)
 	if err != nil {
-		fmt.Println("Error:", err)
+		Logger_Error.Println("Error:", err)
 		return nil, err
 	}
 	return listener, nil
