@@ -130,7 +130,7 @@ func login(conn net.Conn) {
 
 func showMapAndPlayerState(sc_msg *protof.Message1) { //显示战斗界面和战斗数据
 	round := int(*sc_msg.ScFightData.Round)
-	fmt.Println("====================================================")
+	fmt.Println("====================Fight Show================================")
 	m_x := int(*sc_msg.ScFightData.MySide.MapX)
 	m_y := int(*sc_msg.ScFightData.MySide.MapY)
 	o_x := int(*sc_msg.ScFightData.OtherSide.MapX)
@@ -151,10 +151,10 @@ func showMapAndPlayerState(sc_msg *protof.Message1) { //显示战斗界面和战
 	m_life := *sc_msg.ScFightData.MySide.Life
 	o_life := *sc_msg.ScFightData.OtherSide.Life
 	fmt.Println("My Name:", *sc_msg.ScFightData.MySide.Name, "My life:", m_life, "| Other Name:", *sc_msg.ScFightData.OtherSide.Name, "-Other life:", o_life)
-
+	fmt.Println("====================Fight Show End================================")
 }
 
-func readFight(conn net.Conn) {
+func readyFight(conn net.Conn) {
 	read := true
 	cs_fightstart := &protof.Message1_CS_FightStart{
 		Isstart: &read,
@@ -166,20 +166,31 @@ func readFight(conn net.Conn) {
 	conn.Write(w_msg)
 }
 
-func fight(sc_msg *protof.Message1, conn net.Conn) {
+func fight(sc_msg *protof.Message1, conn net.Conn) bool {
 	showMapAndPlayerState(sc_msg)
-	var x int //位移 x
-	var y int //位移 y
-	var s int //速度
-	var a int //攻击
-	fmt.Print("please input x:")
-	fmt.Scanln(&x)
-	fmt.Print("please input y:")
-	fmt.Scanln(&y)
-	fmt.Print("please input speed:")
-	fmt.Scanln(&s)
-	fmt.Print("please input attack:")
-	fmt.Scanln(&a)
+	if sc_msg.ScFightData.GetResult() == 1 {
+		fmt.Println("Fight Over!\n  Congratulation！ You Win!!!!!!!!")
+		return true
+	} else if sc_msg.ScFightData.GetResult() == 2 {
+		fmt.Println("Fight Over!\nOh I am sorry! You Lose!!!!!!!!!")
+		return true
+	} else if sc_msg.ScFightData.GetResult() == 3 {
+		fmt.Println("Fight Over!\n   It is Draw!!!!!!!!!!")
+		return true
+	}
+	//	var x int //位移 x
+	//	var y int //位移 y
+	//	var s int //速度
+	//	var a int //攻击
+	//	fmt.Print("please input x:")
+	//	fmt.Scanln(&x)
+	//	fmt.Print("please input y:")
+	//	fmt.Scanln(&y)
+	//	fmt.Print("please input speed:")
+	//	fmt.Scanln(&s)
+	//	fmt.Print("please input attack:")
+	//	fmt.Scanln(&a)
+	x, y, s, a := fightInput(sc_msg)
 	m_x := int32(x)
 	m_y := int32(y)
 	attack := int32(a)
@@ -193,9 +204,40 @@ func fight(sc_msg *protof.Message1, conn net.Conn) {
 	cs_msg := &protof.Message1{
 		CsFightData: fight_msg,
 	}
-	w_msg := WriteMessge(cs_msg, int(protof.Message1_SC_FIGHTDATA))
+	w_msg := WriteMessge(cs_msg, int(protof.Message1_CS_FIGHTDATA))
 	conn.Write(w_msg)
+	return false
 
+}
+
+func SendRankMsg(conn net.Conn) {
+	fmt.Println("111111111111")
+	cs_msg := &protof.Message1{
+		CsGetRank: &protof.Message1_CS_GetRank{
+			Code: proto.Int32(0),
+		},
+	}
+	mid := int(protof.Message1_CS_GETRANK)
+	w_msg := WriteMessge(cs_msg, mid)
+	conn.Write(w_msg)
+	fmt.Println("Send Rank Requist Successful!")
+
+}
+
+func ShowRank(sc_msg *protof.Message1) {
+	if *sc_msg.ScGetRank.Code != 0 {
+		fmt.Println("Rank is Error!")
+		return
+	}
+
+	fmt.Println("================Rank List========================")
+	fmt.Println("排名        名字         分数")
+	for k, v := range sc_msg.ScGetRank.RankData {
+		fmt.Println(k+1, "        ", *v.Name, "         ", *v.Score)
+	}
+	fmt.Println("----------------------------------------------")
+	fmt.Println("我的排名:", sc_msg.ScGetRank.MyRanking.GetRanking(), "我的分数:", sc_msg.ScGetRank.MyRanking.GetScore())
+	fmt.Println("=================================================")
 }
 
 func main() {
@@ -266,20 +308,30 @@ func main() {
 			}
 
 		} else if msgid == int(protof.Message1_SC_FIGHTDATA) {
-			fight(sc_msg, conn)
-			continue
+			isover := fight(sc_msg, conn)
+			if isover {
+				fmt.Println("######################################")
+			} else {
+				continue
+			}
+		} else if msgid == int(protof.Message1_SC_GETRANK) {
+			ShowRank(sc_msg)
 		}
 		for {
 			var choice int
-			fmt.Print("1:Are you ready fight!")
-			fmt.Print("2:Are you quit!")
+			fmt.Print("1:Are you ready fighting!\n")
+			fmt.Print("2:Show the Rank!\n")
+			fmt.Print("3:Do you quit!\n")
 			fmt.Print("Which do you choice?\n")
 			fmt.Scanln(&choice)
 			if choice == 1 {
 				fmt.Println("You are ready fight!")
-				readFight(conn)
+				readyFight(conn)
 				break
 			} else if choice == 2 {
+				SendRankMsg(conn)
+				break
+			} else if choice == 3 {
 				fmt.Println("bye bye!")
 				return
 			}
