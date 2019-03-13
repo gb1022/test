@@ -1,9 +1,10 @@
 package gbframe
 
 import (
-	//	"fmt"
 	"crypto/md5"
 	"encoding/hex"
+
+	// "fmt"
 	"net"
 )
 
@@ -17,20 +18,22 @@ type TransportData struct {
 
 func (t *TransportData) ReadData() {
 	buf := make([]byte, 2048)
-	n, _ := t.Conn.Read(buf)
-	if n == 0 || buf == nil {
+	n, err := t.Conn.Read(buf)
+	if n == 0 || buf == nil || err != nil {
+		Logger_Error.Println("ReadData err:", err)
+		// t.State <- false
 		t.State = false
 		return
 	}
 	t.InData <- buf[:n]
-	//	fmt.Println("eeeeeeeeeeeeeeee")
+	// Logger_Info.Println("eeeeeeeeeeeeeeee,n:", n, " buf:", buf[:n])
 }
 
 func (t *TransportData) WriteData() {
 	for {
 		select {
 		case d := <-t.OutData:
-			//			fmt.Println("gbframe writedata:", d)
+			// fmt.Println("gbframe writedata:", d)
 			t.Conn.Write(d)
 		}
 	}
@@ -48,8 +51,8 @@ func CreateTransportData(conn net.Conn) *TransportData {
 	//	var outdata []byte
 	newTransportData := &TransportData{
 		Conn:    conn,
-		InData:  make(chan []byte),
-		OutData: make(chan []byte),
+		InData:  make(chan []byte, 100),
+		OutData: make(chan []byte, 100),
 		State:   true,
 	}
 	return newTransportData

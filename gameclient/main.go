@@ -1,14 +1,19 @@
 package main
 
 import (
+	// "os"
+	// "os/exec"
+
 	//	"bufio"
 	"fmt"
 	"net"
+
 	//	"os"
 	"encoding/binary"
 	"errors"
 	"protof"
 	"strconv"
+
 	//	"strings"
 	"time"
 
@@ -16,10 +21,14 @@ import (
 )
 
 const addr = "127.0.0.1:9999"
+
+//const addr = "192.168.1.151:9999"
 const (
 	MAP_X = 20
 	MAP_Y = 20
 )
+
+var Fight_data_capture = Capture_fight_data{}
 
 //type ClientData struct{
 //	Conn net.Conn
@@ -27,7 +36,7 @@ const (
 //}
 
 func ReadMessage(msg []byte) (*protof.Message1, int) {
-	//	fmt.Println("recv msg:", string(msg[:n]), "msg byte:", msg[:n])
+	// fmt.Println("recv msg:", string(msg[:n]), "msg byte:", msg[:n])
 	//	r_data, msgid, _ := UnmarshalRecMsg(msg[:n])
 	//	sc_msg := &protof.Message1_SC_LoginMessage{}
 	//	err := proto.Unmarshal(r_data, sc_msg)
@@ -40,6 +49,8 @@ func ReadMessage(msg []byte) (*protof.Message1, int) {
 	if err != nil {
 		return nil, 0
 	}
+	fmt.Println("pMsg:", pMsg)
+	fmt.Println("msgId:", msgId)
 	sc_msg := &protof.Message1{}
 	err = proto.Unmarshal(pMsg, sc_msg)
 	if err != nil {
@@ -79,6 +90,7 @@ func UnmarshalRecMsg(msg []byte) ([]byte, int, error) {
 	msgId := binary.BigEndian.Uint16(msg[4:6])
 	if msgLen != (uint32(len(msg)) - uint32(4)) {
 		fmt.Println("UnmalRecMsg is error,Msg lenth is wrong!,msgLen:", msgLen, "len(msg):", len(msg))
+		fmt.Println("UnmalRecMsg msg is :", msg)
 		return nil, 0, errors.New("Msg lenth is wrong")
 	}
 	rmsg := msg[6:]
@@ -154,16 +166,18 @@ func showMapAndPlayerState(sc_msg *protof.Message1) { //显示战斗界面和战
 	fmt.Println("====================Fight Show End================================")
 }
 
-func readyFight(conn net.Conn) {
+func readyFight(conn net.Conn, game_type int) {
 	read := true
 	cs_fightstart := &protof.Message1_CS_FightStart{
-		Isstart: &read,
+		Isstart:  &read,
+		Gametype: proto.Int32(int32(game_type)),
 	}
 	msg := &protof.Message1{
 		CsFightStart: cs_fightstart,
 	}
 	w_msg := WriteMessge(msg, int(protof.Message1_CS_FIGHTSTART))
 	conn.Write(w_msg)
+	// SendPingMsg(conn, 0)
 }
 
 func fight(sc_msg *protof.Message1, conn net.Conn) bool {
@@ -240,6 +254,18 @@ func ShowRank(sc_msg *protof.Message1) {
 	fmt.Println("=================================================")
 }
 
+func SendPingMsg(conn net.Conn, code int32) {
+	cs_msg := &protof.Message1{
+		CsPing: &protof.Message1_CS_Ping{
+			Code: proto.Int32(code),
+		},
+	}
+	mid := int(protof.Message1_CSPIND)
+	w_msg := WriteMessge(cs_msg, mid)
+	conn.Write(w_msg)
+	fmt.Println("fight ready time:", time.Now().Second())
+}
+
 func main() {
 	fmt.Println("1")
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", addr)
@@ -270,6 +296,8 @@ func main() {
 		conn.Close()
 		fmt.Println("The server connect is over!")
 	}()
+	var server_time float32
+	var match_flag int
 	for {
 		//		inputReader := bufio.NewReader(os.Stdin)
 		//		var str string
@@ -284,37 +312,54 @@ func main() {
 		//		var buf []byte
 		n, err := conn.Read(buf)
 		if err != nil {
-			fmt.Println("conn is err:", err)
-			//			time.Sleep(5 * time.Second)
-
+			fmt.Println("conn Read is err:", err)
 			break
 		}
 
 		sc_msg, msgid := ReadMessage(buf[:n])
-		if msgid == int(protof.Message1_SC_LOGINMESSAGE) {
+		switch msgid {
+		case int(protof.Message1_SCPIND):
+			server_time = float32(sc_msg.ScPing.GetTime())
+			fmt.Println("Server time is ", server_time)
+			if match_flag == 1 {
+				SendPingMsg(conn, 1)
+			}
+		case int(protof.Message1_SC_LOGINMESSAGE):
 			if sc_msg.ScLoginMessage.GetCode() == 0 {
 				fmt.Println("client login success!")
 			} else {
-				fmt.Println("client login fail!please restart game!")
-				break
+				fmt.Println("client login fail!please reset game!")
+				login(conn)
+				continue
 			}
-		} else if msgid == int(protof.Message1_SC_FIGHTSTART) {
+		case int(protof.Message1_SC_FIGHTSTART):
+			fmt.Println("sc msg :", sc_msg)
 			if sc_msg.ScFightStart.GetIsstartA() && sc_msg.ScFightStart.GetIsstartB() {
 				fmt.Println("Fight is begin now!")
 				continue
 			} else {
 				fmt.Println("somebody is not ready! please wait a moment...")
+				// SendPingMsg(conn, 1)
+				// match_flag = 1
 				continue
 			}
-
-		} else if msgid == int(protof.Message1_SC_FIGHTDATA) {
+		case int(protof.Message1_SC_FIGHTDATA):
+			Flush屏幕()
 			isover := fight(sc_msg, conn)
 			if isover {
 				fmt.Println("######################################")
 			} else {
 				continue
 			}
-		} else if msgid == int(protof.Message1_SC_GETRANK) {
+		case int(protof.Message1_SC_FIGHTDATA_TUNNEL_CAPTURE):
+			Flush屏幕()
+			isover := fight_tunnel_capture(sc_msg, conn)
+			if isover {
+				fmt.Println("######################################")
+			} else {
+				continue
+			}
+		case int(protof.Message1_SC_GETRANK):
 			ShowRank(sc_msg)
 		}
 		for {
@@ -325,8 +370,12 @@ func main() {
 			fmt.Print("Which do you choice?\n")
 			fmt.Scanln(&choice)
 			if choice == 1 {
+				var ch int
+				fmt.Print("1 map game; \n2 tunnel_capture_game\n")
+				fmt.Println("Which game do you choose?")
+				fmt.Scanln(&ch)
 				fmt.Println("You are ready fight!")
-				readyFight(conn)
+				readyFight(conn, ch)
 				break
 			} else if choice == 2 {
 				SendRankMsg(conn)

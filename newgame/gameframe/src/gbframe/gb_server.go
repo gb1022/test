@@ -20,13 +20,20 @@ type Service struct {
 //var NetConnMap = map[string]*Service{}
 
 func (s *Service) ServiceProcess() {
-	s.Wg.Add(1)
+
 	for {
 		s.TranData.Prosses()
 		//		fmt.Println("dddddddddddddddddddddddd, state:", s.TranData.State)
-		if s.TranData.State == false {
-			s.State = false
-			s.ConnClose()
+		// select {
+		// case state := <-s.TranData.State:
+		// 	if state == false {
+		// 		s.State = false
+		// 		s.ConnClose()
+		// 		return
+		// 	}
+		// }
+		s.State = s.TranData.State
+		if s.State == false {
 			return
 		}
 	}
@@ -36,7 +43,8 @@ func (s *Service) ConnClose() {
 	//	s.Conn.Close()
 
 	s.TranData.Conn.Close()
-	s.Wg.Done()
+	// s.Wg.Done()
+
 	//	fmt.Println("Service connClose!!!!!!!!!!!!!!!!!!")
 }
 
@@ -73,6 +81,7 @@ func CreateService(listener *net.TCPListener, id string) (*Service, error) {
 		TranData: t,
 		Wg:       &sync.WaitGroup{},
 	}
+	s.Wg.Add(1)
 	//		sess := MakeSession(id)
 	//		NetConnMap[sess] = s
 

@@ -3,7 +3,8 @@ package protof;
 message Message1
 {
 	enum ID{
-		PIND = 100;
+		CSPIND = 99;
+		SCPIND = 100;
 		CS_LOGINMESSAGE =101;
 		SC_LOGINMESSAGE = 102;
         CS_FIGHTDATA = 103;
@@ -12,8 +13,11 @@ message Message1
 		SC_FIGHTSTART = 106;
 		CS_GETRANK = 107;
 		SC_GETRANK = 108;
+		CS_FIGHTDATA_TUNNEL_CAPTURE = 109;
+		SC_FIGHTDATA_TUNNEL_CAPTURE = 110;
 	}
-	optional Ping ping                        = 100;
+	optional CS_Ping cs_ping                        = 99;
+	optional SC_Ping sc_ping                        = 100;
 	optional CS_LoginMessage cs_login_message = 101;
 	optional SC_LoginMessage sc_login_message = 102;
 	optional CS_FightData cs_fight_data = 103;
@@ -22,19 +26,25 @@ message Message1
 	optional SC_FightStart sc_fight_start = 106;
 	optional CS_GetRank cs_get_rank = 107;
 	optional SC_GetRank sc_get_rank = 108;
+	optional CS_FightData_Tunnel_Capture cs_fightData_tunnel_capture = 109;
+	optional SC_FightData_Tunnel_Capture sc_fightData_tunnel_capture= 110;
+	
 	
 
 
-    message Ping
+    message CS_Ping
     {   
-        required float              time        = 1; //时间
-        optional int32              serTime     = 2; //服务器时间 时间戳
+        required int32              code        = 1; //确认
+    }
+	    message SC_Ping
+    {   
+        required float              time        = 1; //服务器时间戳
     }
 	message CS_LoginMessage
 	{
 	    required int32 id = 1; 
 	    required string name = 2;
-	    required int32 opt = 3; 
+	    required int32 opt = 3; //匹配房间用的
 	}
 
 	message SC_LoginMessage
@@ -70,6 +80,7 @@ message Message1
 	
 	message CS_FightStart{
 		required bool isstart = 1;//是否开始
+		required int32 gametype = 2; //哪个游戏
 	}
 	message SC_FightStart{
 		required bool isstartA = 1;//自己是否准备好了
@@ -90,4 +101,39 @@ message Message1
 		required int32 score = 2;
 		optional int32 ranking = 3;//排名
 	}
+	
+	message Map_Info{
+		required int32 x = 1; //x坐标
+		required int32 y = 2; //y坐标
+	}
+	
+	message CS_FightData_Tunnel_Capture{
+		repeated Map_Info MovePoints =1; //移动路径
+		repeated Map_Info CapturePoints =2; //挖掘的节点
+	}	
+	
+	message FightStateData_Capture{
+		required string   Name                =1;   //名字
+		required string   OtherName           =2;   //对手名字 
+		required Map_Info BirthPoint          =3;   //出生节点
+		repeated Map_Info ExcavatePoits       =4;   //已挖掘的节点
+		repeated Map_Info OtherExcavatePoints =5;   //对方已挖掘的节点
+		repeated Map_Info MovePoints          =6;   //移动
+		required Map_Info OtherBirthPoint     =7;   //对方的出生节点
+		required Map_Info UserAtPoint         =8;   //当前所在的节点
+		required Map_Info OtherUserAtPoint    =9;   //对方当前所在的节点 ps:（被发现才会有值，未被发现则节点为-1,-1）
+		required int32 LastPower              =10;   //剩余能量点
+		required int32 OtherPower             =11;  //对方剩余能量点
+	}
+	
+	message SC_FightData_Tunnel_Capture{
+		required int32 code = 1; //状态码，0:无问题，1：节点超出地图限制，2：移动节点不在挖掘点内，3：节点错误,4:能量点超出总量
+		required int32 round = 2;//回合数
+		required int32 result = 3;//结果 0:无 1:赢 2:输 3:平
+		required FightStateData_Capture fight_state_data = 4;//战斗信息
+		required bool is_fight = 5; //是否该你战斗
+	}
+	
+	
+	
 }

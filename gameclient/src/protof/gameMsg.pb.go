@@ -31,19 +31,23 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 type Message1_ID int32
 
 const (
-	Message1_PIND            Message1_ID = 100
-	Message1_CS_LOGINMESSAGE Message1_ID = 101
-	Message1_SC_LOGINMESSAGE Message1_ID = 102
-	Message1_CS_FIGHTDATA    Message1_ID = 103
-	Message1_SC_FIGHTDATA    Message1_ID = 104
-	Message1_CS_FIGHTSTART   Message1_ID = 105
-	Message1_SC_FIGHTSTART   Message1_ID = 106
-	Message1_CS_GETRANK      Message1_ID = 107
-	Message1_SC_GETRANK      Message1_ID = 108
+	Message1_CSPIND                      Message1_ID = 99
+	Message1_SCPIND                      Message1_ID = 100
+	Message1_CS_LOGINMESSAGE             Message1_ID = 101
+	Message1_SC_LOGINMESSAGE             Message1_ID = 102
+	Message1_CS_FIGHTDATA                Message1_ID = 103
+	Message1_SC_FIGHTDATA                Message1_ID = 104
+	Message1_CS_FIGHTSTART               Message1_ID = 105
+	Message1_SC_FIGHTSTART               Message1_ID = 106
+	Message1_CS_GETRANK                  Message1_ID = 107
+	Message1_SC_GETRANK                  Message1_ID = 108
+	Message1_CS_FIGHTDATA_TUNNEL_CAPTURE Message1_ID = 109
+	Message1_SC_FIGHTDATA_TUNNEL_CAPTURE Message1_ID = 110
 )
 
 var Message1_ID_name = map[int32]string{
-	100: "PIND",
+	99:  "CSPIND",
+	100: "SCPIND",
 	101: "CS_LOGINMESSAGE",
 	102: "SC_LOGINMESSAGE",
 	103: "CS_FIGHTDATA",
@@ -52,17 +56,22 @@ var Message1_ID_name = map[int32]string{
 	106: "SC_FIGHTSTART",
 	107: "CS_GETRANK",
 	108: "SC_GETRANK",
+	109: "CS_FIGHTDATA_TUNNEL_CAPTURE",
+	110: "SC_FIGHTDATA_TUNNEL_CAPTURE",
 }
 var Message1_ID_value = map[string]int32{
-	"PIND":            100,
-	"CS_LOGINMESSAGE": 101,
-	"SC_LOGINMESSAGE": 102,
-	"CS_FIGHTDATA":    103,
-	"SC_FIGHTDATA":    104,
-	"CS_FIGHTSTART":   105,
-	"SC_FIGHTSTART":   106,
-	"CS_GETRANK":      107,
-	"SC_GETRANK":      108,
+	"CSPIND":                      99,
+	"SCPIND":                      100,
+	"CS_LOGINMESSAGE":             101,
+	"SC_LOGINMESSAGE":             102,
+	"CS_FIGHTDATA":                103,
+	"SC_FIGHTDATA":                104,
+	"CS_FIGHTSTART":               105,
+	"SC_FIGHTSTART":               106,
+	"CS_GETRANK":                  107,
+	"SC_GETRANK":                  108,
+	"CS_FIGHTDATA_TUNNEL_CAPTURE": 109,
+	"SC_FIGHTDATA_TUNNEL_CAPTURE": 110,
 }
 
 func (x Message1_ID) Enum() *Message1_ID {
@@ -84,16 +93,19 @@ func (x *Message1_ID) UnmarshalJSON(data []byte) error {
 func (Message1_ID) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 0} }
 
 type Message1 struct {
-	Ping             *Message1_Ping            `protobuf:"bytes,100,opt,name=ping" json:"ping,omitempty"`
-	CsLoginMessage   *Message1_CS_LoginMessage `protobuf:"bytes,101,opt,name=cs_login_message" json:"cs_login_message,omitempty"`
-	ScLoginMessage   *Message1_SC_LoginMessage `protobuf:"bytes,102,opt,name=sc_login_message" json:"sc_login_message,omitempty"`
-	CsFightData      *Message1_CS_FightData    `protobuf:"bytes,103,opt,name=cs_fight_data" json:"cs_fight_data,omitempty"`
-	ScFightData      *Message1_SC_FightData    `protobuf:"bytes,104,opt,name=sc_fight_data" json:"sc_fight_data,omitempty"`
-	CsFightStart     *Message1_CS_FightStart   `protobuf:"bytes,105,opt,name=cs_fight_start" json:"cs_fight_start,omitempty"`
-	ScFightStart     *Message1_SC_FightStart   `protobuf:"bytes,106,opt,name=sc_fight_start" json:"sc_fight_start,omitempty"`
-	CsGetRank        *Message1_CS_GetRank      `protobuf:"bytes,107,opt,name=cs_get_rank" json:"cs_get_rank,omitempty"`
-	ScGetRank        *Message1_SC_GetRank      `protobuf:"bytes,108,opt,name=sc_get_rank" json:"sc_get_rank,omitempty"`
-	XXX_unrecognized []byte                    `json:"-"`
+	CsPing                   *Message1_CS_Ping                     `protobuf:"bytes,99,opt,name=cs_ping" json:"cs_ping,omitempty"`
+	ScPing                   *Message1_SC_Ping                     `protobuf:"bytes,100,opt,name=sc_ping" json:"sc_ping,omitempty"`
+	CsLoginMessage           *Message1_CS_LoginMessage             `protobuf:"bytes,101,opt,name=cs_login_message" json:"cs_login_message,omitempty"`
+	ScLoginMessage           *Message1_SC_LoginMessage             `protobuf:"bytes,102,opt,name=sc_login_message" json:"sc_login_message,omitempty"`
+	CsFightData              *Message1_CS_FightData                `protobuf:"bytes,103,opt,name=cs_fight_data" json:"cs_fight_data,omitempty"`
+	ScFightData              *Message1_SC_FightData                `protobuf:"bytes,104,opt,name=sc_fight_data" json:"sc_fight_data,omitempty"`
+	CsFightStart             *Message1_CS_FightStart               `protobuf:"bytes,105,opt,name=cs_fight_start" json:"cs_fight_start,omitempty"`
+	ScFightStart             *Message1_SC_FightStart               `protobuf:"bytes,106,opt,name=sc_fight_start" json:"sc_fight_start,omitempty"`
+	CsGetRank                *Message1_CS_GetRank                  `protobuf:"bytes,107,opt,name=cs_get_rank" json:"cs_get_rank,omitempty"`
+	ScGetRank                *Message1_SC_GetRank                  `protobuf:"bytes,108,opt,name=sc_get_rank" json:"sc_get_rank,omitempty"`
+	CsFightDataTunnelCapture *Message1_CS_FightData_Tunnel_Capture `protobuf:"bytes,109,opt,name=cs_fightData_tunnel_capture" json:"cs_fightData_tunnel_capture,omitempty"`
+	ScFightDataTunnelCapture *Message1_SC_FightData_Tunnel_Capture `protobuf:"bytes,110,opt,name=sc_fightData_tunnel_capture" json:"sc_fightData_tunnel_capture,omitempty"`
+	XXX_unrecognized         []byte                                `json:"-"`
 }
 
 func (m *Message1) Reset()                    { *m = Message1{} }
@@ -101,9 +113,16 @@ func (m *Message1) String() string            { return proto.CompactTextString(m
 func (*Message1) ProtoMessage()               {}
 func (*Message1) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
-func (m *Message1) GetPing() *Message1_Ping {
+func (m *Message1) GetCsPing() *Message1_CS_Ping {
 	if m != nil {
-		return m.Ping
+		return m.CsPing
+	}
+	return nil
+}
+
+func (m *Message1) GetScPing() *Message1_SC_Ping {
+	if m != nil {
+		return m.ScPing
 	}
 	return nil
 }
@@ -164,27 +183,50 @@ func (m *Message1) GetScGetRank() *Message1_SC_GetRank {
 	return nil
 }
 
-type Message1_Ping struct {
-	Time             *float32 `protobuf:"fixed32,1,req,name=time" json:"time,omitempty"`
-	SerTime          *int32   `protobuf:"varint,2,opt,name=serTime" json:"serTime,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+func (m *Message1) GetCsFightDataTunnelCapture() *Message1_CS_FightData_Tunnel_Capture {
+	if m != nil {
+		return m.CsFightDataTunnelCapture
+	}
+	return nil
 }
 
-func (m *Message1_Ping) Reset()                    { *m = Message1_Ping{} }
-func (m *Message1_Ping) String() string            { return proto.CompactTextString(m) }
-func (*Message1_Ping) ProtoMessage()               {}
-func (*Message1_Ping) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 0} }
+func (m *Message1) GetScFightDataTunnelCapture() *Message1_SC_FightData_Tunnel_Capture {
+	if m != nil {
+		return m.ScFightDataTunnelCapture
+	}
+	return nil
+}
 
-func (m *Message1_Ping) GetTime() float32 {
-	if m != nil && m.Time != nil {
-		return *m.Time
+type Message1_CS_Ping struct {
+	Code             *int32 `protobuf:"varint,1,req,name=code" json:"code,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *Message1_CS_Ping) Reset()                    { *m = Message1_CS_Ping{} }
+func (m *Message1_CS_Ping) String() string            { return proto.CompactTextString(m) }
+func (*Message1_CS_Ping) ProtoMessage()               {}
+func (*Message1_CS_Ping) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 0} }
+
+func (m *Message1_CS_Ping) GetCode() int32 {
+	if m != nil && m.Code != nil {
+		return *m.Code
 	}
 	return 0
 }
 
-func (m *Message1_Ping) GetSerTime() int32 {
-	if m != nil && m.SerTime != nil {
-		return *m.SerTime
+type Message1_SC_Ping struct {
+	Time             *float32 `protobuf:"fixed32,1,req,name=time" json:"time,omitempty"`
+	XXX_unrecognized []byte   `json:"-"`
+}
+
+func (m *Message1_SC_Ping) Reset()                    { *m = Message1_SC_Ping{} }
+func (m *Message1_SC_Ping) String() string            { return proto.CompactTextString(m) }
+func (*Message1_SC_Ping) ProtoMessage()               {}
+func (*Message1_SC_Ping) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 1} }
+
+func (m *Message1_SC_Ping) GetTime() float32 {
+	if m != nil && m.Time != nil {
+		return *m.Time
 	}
 	return 0
 }
@@ -199,7 +241,7 @@ type Message1_CS_LoginMessage struct {
 func (m *Message1_CS_LoginMessage) Reset()                    { *m = Message1_CS_LoginMessage{} }
 func (m *Message1_CS_LoginMessage) String() string            { return proto.CompactTextString(m) }
 func (*Message1_CS_LoginMessage) ProtoMessage()               {}
-func (*Message1_CS_LoginMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 1} }
+func (*Message1_CS_LoginMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 2} }
 
 func (m *Message1_CS_LoginMessage) GetId() int32 {
 	if m != nil && m.Id != nil {
@@ -232,7 +274,7 @@ type Message1_SC_LoginMessage struct {
 func (m *Message1_SC_LoginMessage) Reset()                    { *m = Message1_SC_LoginMessage{} }
 func (m *Message1_SC_LoginMessage) String() string            { return proto.CompactTextString(m) }
 func (*Message1_SC_LoginMessage) ProtoMessage()               {}
-func (*Message1_SC_LoginMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 2} }
+func (*Message1_SC_LoginMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 3} }
 
 func (m *Message1_SC_LoginMessage) GetCode() int32 {
 	if m != nil && m.Code != nil {
@@ -266,7 +308,7 @@ type Message1_CS_FightData struct {
 func (m *Message1_CS_FightData) Reset()                    { *m = Message1_CS_FightData{} }
 func (m *Message1_CS_FightData) String() string            { return proto.CompactTextString(m) }
 func (*Message1_CS_FightData) ProtoMessage()               {}
-func (*Message1_CS_FightData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 3} }
+func (*Message1_CS_FightData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 4} }
 
 func (m *Message1_CS_FightData) GetSpeed() int32 {
 	if m != nil && m.Speed != nil {
@@ -307,7 +349,7 @@ type Message1_SC_FightData struct {
 func (m *Message1_SC_FightData) Reset()                    { *m = Message1_SC_FightData{} }
 func (m *Message1_SC_FightData) String() string            { return proto.CompactTextString(m) }
 func (*Message1_SC_FightData) ProtoMessage()               {}
-func (*Message1_SC_FightData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 4} }
+func (*Message1_SC_FightData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 5} }
 
 func (m *Message1_SC_FightData) GetRound() int32 {
 	if m != nil && m.Round != nil {
@@ -348,7 +390,7 @@ type Message1_FightStateData struct {
 func (m *Message1_FightStateData) Reset()                    { *m = Message1_FightStateData{} }
 func (m *Message1_FightStateData) String() string            { return proto.CompactTextString(m) }
 func (*Message1_FightStateData) ProtoMessage()               {}
-func (*Message1_FightStateData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 5} }
+func (*Message1_FightStateData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 6} }
 
 func (m *Message1_FightStateData) GetName() string {
 	if m != nil && m.Name != nil {
@@ -380,19 +422,27 @@ func (m *Message1_FightStateData) GetLife() int32 {
 
 type Message1_CS_FightStart struct {
 	Isstart          *bool  `protobuf:"varint,1,req,name=isstart" json:"isstart,omitempty"`
+	Gametype         *int32 `protobuf:"varint,2,req,name=gametype" json:"gametype,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
 func (m *Message1_CS_FightStart) Reset()                    { *m = Message1_CS_FightStart{} }
 func (m *Message1_CS_FightStart) String() string            { return proto.CompactTextString(m) }
 func (*Message1_CS_FightStart) ProtoMessage()               {}
-func (*Message1_CS_FightStart) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 6} }
+func (*Message1_CS_FightStart) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 7} }
 
 func (m *Message1_CS_FightStart) GetIsstart() bool {
 	if m != nil && m.Isstart != nil {
 		return *m.Isstart
 	}
 	return false
+}
+
+func (m *Message1_CS_FightStart) GetGametype() int32 {
+	if m != nil && m.Gametype != nil {
+		return *m.Gametype
+	}
+	return 0
 }
 
 type Message1_SC_FightStart struct {
@@ -404,7 +454,7 @@ type Message1_SC_FightStart struct {
 func (m *Message1_SC_FightStart) Reset()                    { *m = Message1_SC_FightStart{} }
 func (m *Message1_SC_FightStart) String() string            { return proto.CompactTextString(m) }
 func (*Message1_SC_FightStart) ProtoMessage()               {}
-func (*Message1_SC_FightStart) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 7} }
+func (*Message1_SC_FightStart) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 8} }
 
 func (m *Message1_SC_FightStart) GetIsstartA() bool {
 	if m != nil && m.IsstartA != nil {
@@ -428,7 +478,7 @@ type Message1_CS_GetRank struct {
 func (m *Message1_CS_GetRank) Reset()                    { *m = Message1_CS_GetRank{} }
 func (m *Message1_CS_GetRank) String() string            { return proto.CompactTextString(m) }
 func (*Message1_CS_GetRank) ProtoMessage()               {}
-func (*Message1_CS_GetRank) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 8} }
+func (*Message1_CS_GetRank) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 9} }
 
 func (m *Message1_CS_GetRank) GetCode() int32 {
 	if m != nil && m.Code != nil {
@@ -447,7 +497,7 @@ type Message1_SC_GetRank struct {
 func (m *Message1_SC_GetRank) Reset()                    { *m = Message1_SC_GetRank{} }
 func (m *Message1_SC_GetRank) String() string            { return proto.CompactTextString(m) }
 func (*Message1_SC_GetRank) ProtoMessage()               {}
-func (*Message1_SC_GetRank) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 9} }
+func (*Message1_SC_GetRank) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 10} }
 
 func (m *Message1_SC_GetRank) GetCode() int32 {
 	if m != nil && m.Code != nil {
@@ -481,7 +531,7 @@ type Message1_RankData struct {
 func (m *Message1_RankData) Reset()                    { *m = Message1_RankData{} }
 func (m *Message1_RankData) String() string            { return proto.CompactTextString(m) }
 func (*Message1_RankData) ProtoMessage()               {}
-func (*Message1_RankData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 10} }
+func (*Message1_RankData) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 11} }
 
 func (m *Message1_RankData) GetName() string {
 	if m != nil && m.Name != nil {
@@ -504,9 +554,212 @@ func (m *Message1_RankData) GetRanking() int32 {
 	return 0
 }
 
+type Message1_Map_Info struct {
+	X                *int32 `protobuf:"varint,1,req,name=x" json:"x,omitempty"`
+	Y                *int32 `protobuf:"varint,2,req,name=y" json:"y,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *Message1_Map_Info) Reset()                    { *m = Message1_Map_Info{} }
+func (m *Message1_Map_Info) String() string            { return proto.CompactTextString(m) }
+func (*Message1_Map_Info) ProtoMessage()               {}
+func (*Message1_Map_Info) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 12} }
+
+func (m *Message1_Map_Info) GetX() int32 {
+	if m != nil && m.X != nil {
+		return *m.X
+	}
+	return 0
+}
+
+func (m *Message1_Map_Info) GetY() int32 {
+	if m != nil && m.Y != nil {
+		return *m.Y
+	}
+	return 0
+}
+
+type Message1_CS_FightData_Tunnel_Capture struct {
+	MovePoints       []*Message1_Map_Info `protobuf:"bytes,1,rep,name=MovePoints" json:"MovePoints,omitempty"`
+	CapturePoints    []*Message1_Map_Info `protobuf:"bytes,2,rep,name=CapturePoints" json:"CapturePoints,omitempty"`
+	XXX_unrecognized []byte               `json:"-"`
+}
+
+func (m *Message1_CS_FightData_Tunnel_Capture) Reset()         { *m = Message1_CS_FightData_Tunnel_Capture{} }
+func (m *Message1_CS_FightData_Tunnel_Capture) String() string { return proto.CompactTextString(m) }
+func (*Message1_CS_FightData_Tunnel_Capture) ProtoMessage()    {}
+func (*Message1_CS_FightData_Tunnel_Capture) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{0, 13}
+}
+
+func (m *Message1_CS_FightData_Tunnel_Capture) GetMovePoints() []*Message1_Map_Info {
+	if m != nil {
+		return m.MovePoints
+	}
+	return nil
+}
+
+func (m *Message1_CS_FightData_Tunnel_Capture) GetCapturePoints() []*Message1_Map_Info {
+	if m != nil {
+		return m.CapturePoints
+	}
+	return nil
+}
+
+type Message1_FightStateData_Capture struct {
+	Name                *string              `protobuf:"bytes,1,req,name=Name" json:"Name,omitempty"`
+	OtherName           *string              `protobuf:"bytes,2,req,name=OtherName" json:"OtherName,omitempty"`
+	BirthPoint          *Message1_Map_Info   `protobuf:"bytes,3,req,name=BirthPoint" json:"BirthPoint,omitempty"`
+	ExcavatePoits       []*Message1_Map_Info `protobuf:"bytes,4,rep,name=ExcavatePoits" json:"ExcavatePoits,omitempty"`
+	OtherExcavatePoints []*Message1_Map_Info `protobuf:"bytes,5,rep,name=OtherExcavatePoints" json:"OtherExcavatePoints,omitempty"`
+	MovePoints          []*Message1_Map_Info `protobuf:"bytes,6,rep,name=MovePoints" json:"MovePoints,omitempty"`
+	OtherBirthPoint     *Message1_Map_Info   `protobuf:"bytes,7,req,name=OtherBirthPoint" json:"OtherBirthPoint,omitempty"`
+	UserAtPoint         *Message1_Map_Info   `protobuf:"bytes,8,req,name=UserAtPoint" json:"UserAtPoint,omitempty"`
+	OtherUserAtPoint    *Message1_Map_Info   `protobuf:"bytes,9,req,name=OtherUserAtPoint" json:"OtherUserAtPoint,omitempty"`
+	LastPower           *int32               `protobuf:"varint,10,req,name=LastPower" json:"LastPower,omitempty"`
+	OtherPower          *int32               `protobuf:"varint,11,req,name=OtherPower" json:"OtherPower,omitempty"`
+	XXX_unrecognized    []byte               `json:"-"`
+}
+
+func (m *Message1_FightStateData_Capture) Reset()         { *m = Message1_FightStateData_Capture{} }
+func (m *Message1_FightStateData_Capture) String() string { return proto.CompactTextString(m) }
+func (*Message1_FightStateData_Capture) ProtoMessage()    {}
+func (*Message1_FightStateData_Capture) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{0, 14}
+}
+
+func (m *Message1_FightStateData_Capture) GetName() string {
+	if m != nil && m.Name != nil {
+		return *m.Name
+	}
+	return ""
+}
+
+func (m *Message1_FightStateData_Capture) GetOtherName() string {
+	if m != nil && m.OtherName != nil {
+		return *m.OtherName
+	}
+	return ""
+}
+
+func (m *Message1_FightStateData_Capture) GetBirthPoint() *Message1_Map_Info {
+	if m != nil {
+		return m.BirthPoint
+	}
+	return nil
+}
+
+func (m *Message1_FightStateData_Capture) GetExcavatePoits() []*Message1_Map_Info {
+	if m != nil {
+		return m.ExcavatePoits
+	}
+	return nil
+}
+
+func (m *Message1_FightStateData_Capture) GetOtherExcavatePoints() []*Message1_Map_Info {
+	if m != nil {
+		return m.OtherExcavatePoints
+	}
+	return nil
+}
+
+func (m *Message1_FightStateData_Capture) GetMovePoints() []*Message1_Map_Info {
+	if m != nil {
+		return m.MovePoints
+	}
+	return nil
+}
+
+func (m *Message1_FightStateData_Capture) GetOtherBirthPoint() *Message1_Map_Info {
+	if m != nil {
+		return m.OtherBirthPoint
+	}
+	return nil
+}
+
+func (m *Message1_FightStateData_Capture) GetUserAtPoint() *Message1_Map_Info {
+	if m != nil {
+		return m.UserAtPoint
+	}
+	return nil
+}
+
+func (m *Message1_FightStateData_Capture) GetOtherUserAtPoint() *Message1_Map_Info {
+	if m != nil {
+		return m.OtherUserAtPoint
+	}
+	return nil
+}
+
+func (m *Message1_FightStateData_Capture) GetLastPower() int32 {
+	if m != nil && m.LastPower != nil {
+		return *m.LastPower
+	}
+	return 0
+}
+
+func (m *Message1_FightStateData_Capture) GetOtherPower() int32 {
+	if m != nil && m.OtherPower != nil {
+		return *m.OtherPower
+	}
+	return 0
+}
+
+type Message1_SC_FightData_Tunnel_Capture struct {
+	Code             *int32                           `protobuf:"varint,1,req,name=code" json:"code,omitempty"`
+	Round            *int32                           `protobuf:"varint,2,req,name=round" json:"round,omitempty"`
+	Result           *int32                           `protobuf:"varint,3,req,name=result" json:"result,omitempty"`
+	FightStateData   *Message1_FightStateData_Capture `protobuf:"bytes,4,req,name=fight_state_data" json:"fight_state_data,omitempty"`
+	IsFight          *bool                            `protobuf:"varint,5,req,name=is_fight" json:"is_fight,omitempty"`
+	XXX_unrecognized []byte                           `json:"-"`
+}
+
+func (m *Message1_SC_FightData_Tunnel_Capture) Reset()         { *m = Message1_SC_FightData_Tunnel_Capture{} }
+func (m *Message1_SC_FightData_Tunnel_Capture) String() string { return proto.CompactTextString(m) }
+func (*Message1_SC_FightData_Tunnel_Capture) ProtoMessage()    {}
+func (*Message1_SC_FightData_Tunnel_Capture) Descriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{0, 15}
+}
+
+func (m *Message1_SC_FightData_Tunnel_Capture) GetCode() int32 {
+	if m != nil && m.Code != nil {
+		return *m.Code
+	}
+	return 0
+}
+
+func (m *Message1_SC_FightData_Tunnel_Capture) GetRound() int32 {
+	if m != nil && m.Round != nil {
+		return *m.Round
+	}
+	return 0
+}
+
+func (m *Message1_SC_FightData_Tunnel_Capture) GetResult() int32 {
+	if m != nil && m.Result != nil {
+		return *m.Result
+	}
+	return 0
+}
+
+func (m *Message1_SC_FightData_Tunnel_Capture) GetFightStateData() *Message1_FightStateData_Capture {
+	if m != nil {
+		return m.FightStateData
+	}
+	return nil
+}
+
+func (m *Message1_SC_FightData_Tunnel_Capture) GetIsFight() bool {
+	if m != nil && m.IsFight != nil {
+		return *m.IsFight
+	}
+	return false
+}
+
 func init() {
 	proto.RegisterType((*Message1)(nil), "protof.Message1")
-	proto.RegisterType((*Message1_Ping)(nil), "protof.Message1.Ping")
+	proto.RegisterType((*Message1_CS_Ping)(nil), "protof.Message1.CS_Ping")
+	proto.RegisterType((*Message1_SC_Ping)(nil), "protof.Message1.SC_Ping")
 	proto.RegisterType((*Message1_CS_LoginMessage)(nil), "protof.Message1.CS_LoginMessage")
 	proto.RegisterType((*Message1_SC_LoginMessage)(nil), "protof.Message1.SC_LoginMessage")
 	proto.RegisterType((*Message1_CS_FightData)(nil), "protof.Message1.CS_FightData")
@@ -517,51 +770,75 @@ func init() {
 	proto.RegisterType((*Message1_CS_GetRank)(nil), "protof.Message1.CS_GetRank")
 	proto.RegisterType((*Message1_SC_GetRank)(nil), "protof.Message1.SC_GetRank")
 	proto.RegisterType((*Message1_RankData)(nil), "protof.Message1.RankData")
+	proto.RegisterType((*Message1_Map_Info)(nil), "protof.Message1.Map_Info")
+	proto.RegisterType((*Message1_CS_FightData_Tunnel_Capture)(nil), "protof.Message1.CS_FightData_Tunnel_Capture")
+	proto.RegisterType((*Message1_FightStateData_Capture)(nil), "protof.Message1.FightStateData_Capture")
+	proto.RegisterType((*Message1_SC_FightData_Tunnel_Capture)(nil), "protof.Message1.SC_FightData_Tunnel_Capture")
 	proto.RegisterEnum("protof.Message1_ID", Message1_ID_name, Message1_ID_value)
 }
 
 func init() { proto.RegisterFile("gameMsg.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 635 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x8c, 0x94, 0x61, 0x6f, 0x93, 0x40,
-	0x18, 0xc7, 0x03, 0xa3, 0x6b, 0xf7, 0xb4, 0xb4, 0x0c, 0x63, 0x82, 0x18, 0xb5, 0x99, 0x31, 0xe1,
-	0x85, 0x2e, 0x73, 0x33, 0x66, 0xf1, 0x95, 0xd8, 0xce, 0x5a, 0xb5, 0x73, 0x19, 0xbc, 0x27, 0x17,
-	0x38, 0x28, 0x6b, 0x81, 0x86, 0xbb, 0xe9, 0xfa, 0x09, 0xfc, 0x02, 0x7e, 0x02, 0x3f, 0xa9, 0xb9,
-	0x3b, 0xe8, 0xa0, 0x1d, 0x89, 0xaf, 0x96, 0x7b, 0xee, 0xff, 0x7b, 0x1e, 0xee, 0xff, 0xfc, 0x57,
-	0x50, 0x23, 0x94, 0xe0, 0x19, 0x89, 0x8e, 0x57, 0x79, 0x46, 0x33, 0x7d, 0x9f, 0xff, 0x09, 0x8f,
-	0x7e, 0x77, 0xa1, 0x33, 0xc3, 0x84, 0xa0, 0x08, 0xbf, 0xd5, 0x5f, 0x82, 0xb2, 0x8a, 0xd3, 0xc8,
-	0x08, 0x86, 0x92, 0xd5, 0x3d, 0x7d, 0x2c, 0xa4, 0xe1, 0x71, 0x79, 0x7f, 0x7c, 0x15, 0xa7, 0x91,
-	0xfe, 0x01, 0x34, 0x9f, 0x78, 0xcb, 0x2c, 0x8a, 0x53, 0x2f, 0x11, 0x37, 0x06, 0xe6, 0xc0, 0x70,
-	0x07, 0x18, 0x39, 0xde, 0x77, 0x26, 0x2c, 0x0a, 0x8c, 0x25, 0xfe, 0x16, 0x1b, 0x36, 0xb0, 0xce,
-	0xa8, 0xce, 0xbe, 0x03, 0xd5, 0x27, 0x5e, 0x18, 0x47, 0x73, 0xea, 0x05, 0x88, 0x22, 0x23, 0xe2,
-	0xe0, 0xb3, 0x87, 0x86, 0x7e, 0x66, 0xaa, 0x31, 0xa2, 0x88, 0x51, 0xc4, 0xaf, 0x52, 0xf3, 0x06,
-	0xca, 0x19, 0x55, 0xa8, 0xf7, 0xd0, 0xdf, 0xcc, 0x22, 0x14, 0xe5, 0xd4, 0x88, 0x39, 0xf6, 0xbc,
-	0x71, 0x98, 0xc3, 0x54, 0x8c, 0xdb, 0x4c, 0x13, 0xdc, 0x4d, 0x03, 0x57, 0x8e, 0x13, 0xdc, 0x09,
-	0x74, 0x7d, 0xe2, 0x45, 0x98, 0x7a, 0x39, 0x4a, 0x17, 0xc6, 0x82, 0x43, 0x4f, 0x1f, 0x1a, 0x36,
-	0xc1, 0xf4, 0x1a, 0xa5, 0x0b, 0x46, 0x10, 0xff, 0x9e, 0x58, 0x36, 0x10, 0xce, 0xa8, 0x24, 0xcc,
-	0x57, 0xa0, 0xf0, 0xfd, 0xf5, 0x40, 0xa1, 0x71, 0x82, 0x0d, 0x69, 0x28, 0x5b, 0xb2, 0x3e, 0x80,
-	0x36, 0xc1, 0xb9, 0xcb, 0x0a, 0xf2, 0x50, 0xb2, 0x5a, 0xe6, 0x39, 0x0c, 0xb6, 0xb7, 0x06, 0x20,
-	0xc7, 0x01, 0xd7, 0xb7, 0x18, 0x9d, 0x22, 0x2e, 0x96, 0xad, 0x03, 0xbd, 0x0b, 0x7b, 0xd9, 0x8a,
-	0x1a, 0x7b, 0xec, 0xca, 0xfc, 0x08, 0x83, 0xed, 0x9d, 0xf5, 0x40, 0xf1, 0xb3, 0x00, 0x3f, 0xc8,
-	0x1e, 0xc2, 0x01, 0x0f, 0x02, 0x9f, 0x2d, 0x3a, 0xcc, 0xa0, 0x57, 0x5b, 0x9e, 0x0a, 0x2d, 0xb2,
-	0xc2, 0xb8, 0x9c, 0xdd, 0x87, 0x7d, 0x44, 0x29, 0xf2, 0x17, 0xbc, 0x03, 0x3f, 0x27, 0xd9, 0x4f,
-	0xec, 0xdd, 0x09, 0x7c, 0x73, 0x5e, 0x1b, 0x0a, 0x6f, 0xf7, 0x47, 0x82, 0x5e, 0x6d, 0xad, 0x2a,
-	0xb4, 0xf2, 0xec, 0x36, 0xad, 0xf4, 0xcb, 0x31, 0xb9, 0x5d, 0xd2, 0xa2, 0xdf, 0x09, 0xb4, 0x93,
-	0xb5, 0x47, 0xe2, 0x40, 0x7c, 0x4f, 0xf7, 0xf4, 0xc5, 0x8e, 0x9f, 0xe5, 0xce, 0x28, 0xe6, 0x0d,
-	0xcf, 0x00, 0x32, 0x3a, 0xc7, 0xb9, 0x80, 0x94, 0xff, 0x82, 0xcc, 0xaf, 0xd0, 0xdf, 0x6a, 0x53,
-	0x1a, 0x23, 0x71, 0x63, 0x54, 0x68, 0x25, 0x68, 0xe5, 0xdd, 0x15, 0x5f, 0x55, 0x1c, 0xd7, 0xc5,
-	0x23, 0x7b, 0xa0, 0x2c, 0xe3, 0x10, 0x17, 0x4f, 0x1c, 0x82, 0x5a, 0x4f, 0xe0, 0x00, 0xda, 0x31,
-	0x11, 0xd1, 0x63, 0xdd, 0x3a, 0xe6, 0x19, 0xa8, 0xf5, 0xac, 0x69, 0xd0, 0x29, 0x14, 0xb6, 0x90,
-	0x54, 0x2a, 0x9f, 0xf8, 0xcc, 0x8e, 0x69, 0x02, 0x54, 0xb2, 0x56, 0xdb, 0xa2, 0xf9, 0x0b, 0xe0,
-	0x3e, 0x55, 0x5b, 0x1b, 0x7e, 0x0d, 0x07, 0x2c, 0x8e, 0xe2, 0x3f, 0x4d, 0x1e, 0xee, 0x59, 0xdd,
-	0xd3, 0x27, 0x3b, 0x76, 0x30, 0x8e, 0x3f, 0xfb, 0x0d, 0x40, 0xb2, 0xe6, 0xf9, 0x65, 0x3f, 0x3a,
-	0xc2, 0xf2, 0x66, 0xb9, 0x79, 0x0e, 0x9d, 0x0d, 0xba, 0xe3, 0x18, 0xf1, 0xb3, 0x1c, 0x17, 0x8e,
-	0x0d, 0xa0, 0x7d, 0xdf, 0x54, 0xb2, 0x5a, 0x47, 0x7f, 0x25, 0x90, 0xa7, 0x63, 0xbd, 0x03, 0xca,
-	0xd5, 0xf4, 0x72, 0xac, 0x05, 0xfa, 0x23, 0x11, 0xf2, 0x1f, 0x93, 0xe9, 0xe5, 0xec, 0xc2, 0x71,
-	0xec, 0xc9, 0x85, 0x86, 0x59, 0x91, 0xe5, 0xb7, 0x5a, 0x0c, 0x75, 0x4d, 0x44, 0x72, 0x3a, 0xf9,
-	0xe2, 0x8e, 0x6d, 0xd7, 0xd6, 0x22, 0x56, 0x61, 0x86, 0x6e, 0x2a, 0x73, 0xfd, 0x50, 0x2c, 0x81,
-	0x55, 0x1c, 0xd7, 0xbe, 0x76, 0xb5, 0x98, 0x95, 0x4a, 0x91, 0x28, 0xdd, 0xe8, 0x7d, 0xe1, 0xe9,
-	0x85, 0x7b, 0x6d, 0x5f, 0x7e, 0xd3, 0x16, 0xec, 0xcc, 0x7c, 0x2c, 0xce, 0xcb, 0x7f, 0x01, 0x00,
-	0x00, 0xff, 0xff, 0x07, 0x3c, 0x03, 0xb9, 0xa1, 0x05, 0x00, 0x00,
+	// 949 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x8c, 0x95, 0xdd, 0x6e, 0xea, 0x46,
+	0x10, 0xc7, 0x65, 0x07, 0x02, 0x0c, 0x90, 0x38, 0x8e, 0xd4, 0xba, 0x8e, 0xda, 0x83, 0xce, 0x4d,
+	0xa9, 0x74, 0x12, 0xa5, 0xa4, 0x3a, 0x3a, 0xea, 0x55, 0x7d, 0x1c, 0x9a, 0xd2, 0x06, 0x0e, 0x8d,
+	0x9d, 0x6b, 0x6b, 0x65, 0x16, 0xe3, 0x03, 0xb6, 0x91, 0x77, 0xf3, 0xc1, 0x4d, 0x9f, 0xa2, 0xf7,
+	0x7d, 0x96, 0x3e, 0x43, 0xdf, 0xa4, 0x4f, 0x50, 0xed, 0xae, 0x6d, 0x6c, 0x07, 0x87, 0x5e, 0xc1,
+	0x8e, 0xe7, 0xf7, 0x9f, 0x9d, 0xf1, 0xcc, 0x18, 0xba, 0x1e, 0x0a, 0xf0, 0x98, 0x78, 0x17, 0xeb,
+	0x38, 0xa2, 0x91, 0x7a, 0xc8, 0x7f, 0xe6, 0x6f, 0xff, 0x39, 0x85, 0xe6, 0x18, 0x13, 0x82, 0x3c,
+	0xfc, 0xbd, 0xfa, 0x1d, 0x34, 0x5c, 0xe2, 0xac, 0xfd, 0xd0, 0xd3, 0xdc, 0x9e, 0xd4, 0x6f, 0x0f,
+	0x34, 0xe1, 0x3d, 0xbf, 0x48, 0x5d, 0x2e, 0x4c, 0xcb, 0x99, 0xfa, 0xa1, 0xc7, 0x5c, 0x89, 0x2b,
+	0x5c, 0x67, 0x15, 0xae, 0x96, 0x29, 0x5c, 0x7f, 0x04, 0xc5, 0x25, 0xce, 0x2a, 0xf2, 0xfc, 0xd0,
+	0x09, 0xc4, 0x43, 0x0d, 0x73, 0xa6, 0xb7, 0x4b, 0xfe, 0x96, 0x39, 0x26, 0x06, 0xc6, 0x12, 0xb7,
+	0xc4, 0xce, 0x2b, 0x58, 0xcb, 0x2c, 0xb2, 0x3f, 0x40, 0xd7, 0x25, 0xce, 0xdc, 0xf7, 0x16, 0xd4,
+	0x99, 0x21, 0x8a, 0x34, 0x8f, 0x83, 0x5f, 0xef, 0x0a, 0xfa, 0x33, 0xf3, 0xba, 0x46, 0x14, 0x31,
+	0x8a, 0xb8, 0x79, 0x6a, 0x51, 0x41, 0x59, 0x66, 0x8e, 0x7a, 0x0f, 0x47, 0x59, 0x2c, 0x42, 0x51,
+	0x4c, 0x35, 0x9f, 0x63, 0xdf, 0x54, 0x06, 0xb3, 0x98, 0x17, 0xe3, 0xb2, 0x68, 0x82, 0xfb, 0x5c,
+	0xc1, 0xa5, 0xe1, 0x04, 0x77, 0x09, 0x6d, 0x97, 0x38, 0x1e, 0xa6, 0x4e, 0x8c, 0xc2, 0xa5, 0xb6,
+	0xe4, 0xd0, 0xd9, 0xae, 0x60, 0x37, 0x98, 0xde, 0xa1, 0x70, 0xc9, 0x08, 0xe2, 0x6e, 0x89, 0x55,
+	0x05, 0x61, 0x99, 0x19, 0xf1, 0x3b, 0x9c, 0xa5, 0x39, 0xb1, 0x1c, 0x1d, 0xfa, 0x10, 0x86, 0x78,
+	0xe5, 0xb8, 0x68, 0x4d, 0x1f, 0x62, 0xac, 0x05, 0x5c, 0xe1, 0xdd, 0xab, 0xd5, 0x74, 0x6c, 0xc1,
+	0x98, 0x82, 0x61, 0x92, 0x69, 0xba, 0xbb, 0x24, 0xc3, 0x0a, 0xc9, 0x7c, 0xa9, 0x4b, 0x92, 0xfa,
+	0x97, 0xd0, 0x48, 0x7b, 0xb2, 0x03, 0x35, 0x37, 0x9a, 0x61, 0x4d, 0xea, 0xc9, 0xfd, 0x3a, 0x7b,
+	0x90, 0x76, 0x60, 0x07, 0x6a, 0xd4, 0x0f, 0xc4, 0x03, 0x59, 0xff, 0x00, 0xc7, 0xe5, 0x36, 0x03,
+	0x90, 0xfd, 0x99, 0xe0, 0x98, 0x73, 0x88, 0x02, 0xac, 0xc9, 0x3d, 0xb9, 0xdf, 0x52, 0xdb, 0x70,
+	0x10, 0xad, 0xa9, 0x76, 0xc0, 0x25, 0x7f, 0x82, 0xe3, 0x72, 0x93, 0x15, 0x62, 0x96, 0xd8, 0x13,
+	0x68, 0xf1, 0xce, 0xb5, 0x59, 0x6c, 0xa1, 0x30, 0x86, 0x4e, 0xa1, 0xdb, 0xba, 0x50, 0x27, 0x6b,
+	0x8c, 0xd3, 0xd8, 0x47, 0x70, 0x88, 0x28, 0x45, 0xee, 0x92, 0x2b, 0xf0, 0x73, 0x10, 0x3d, 0x62,
+	0xe7, 0x59, 0xe0, 0xd9, 0x79, 0xa3, 0xd5, 0xb8, 0xdc, 0x9f, 0x12, 0x74, 0x0a, 0x7d, 0xd8, 0x85,
+	0x7a, 0x1c, 0x3d, 0x84, 0x39, 0xbd, 0x18, 0x93, 0x87, 0x15, 0x4d, 0xf4, 0x2e, 0xa1, 0x11, 0x6c,
+	0x1c, 0xe2, 0xcf, 0xc4, 0x7d, 0xda, 0x83, 0x37, 0x2f, 0x6a, 0x9d, 0x36, 0x19, 0xc5, 0x5c, 0xf0,
+	0x0a, 0x20, 0xa2, 0x0b, 0x1c, 0x0b, 0xa8, 0xf6, 0xbf, 0x20, 0xfd, 0x57, 0x38, 0x2a, 0xc9, 0xa4,
+	0x85, 0x91, 0x78, 0x61, 0xba, 0x50, 0x0f, 0xd0, 0xda, 0x79, 0x4e, 0x6e, 0x95, 0x1c, 0x37, 0x49,
+	0x92, 0x1d, 0xa8, 0xad, 0xfc, 0x39, 0x4e, 0x52, 0x1c, 0x40, 0xb7, 0x38, 0x32, 0xc7, 0xd0, 0xf0,
+	0x89, 0x98, 0x15, 0xa6, 0xd6, 0x54, 0x15, 0x68, 0xb2, 0xdd, 0x46, 0x37, 0x6b, 0x51, 0xf8, 0xba,
+	0x7e, 0x05, 0xdd, 0xe2, 0xb8, 0x28, 0xd0, 0x4c, 0x18, 0x63, 0x0b, 0x25, 0x96, 0x8f, 0x1c, 0x6a,
+	0xea, 0x3a, 0x40, 0x6e, 0x5c, 0x8a, 0xbd, 0xf4, 0x04, 0x90, 0x1b, 0x8c, 0xe2, 0x3b, 0x7f, 0x07,
+	0x2d, 0x36, 0x51, 0x62, 0x59, 0xc8, 0xbd, 0x83, 0x7e, 0x7b, 0xf0, 0xd5, 0x8b, 0x02, 0x31, 0x8e,
+	0x17, 0xe2, 0x1c, 0x20, 0xd8, 0xf0, 0x11, 0x64, 0xab, 0x53, 0xbc, 0x84, 0x6a, 0x77, 0xfd, 0x03,
+	0x34, 0x33, 0xf4, 0x45, 0x0d, 0x89, 0x1b, 0xc5, 0x49, 0xca, 0xac, 0x2a, 0x5b, 0x51, 0xa9, 0x5f,
+	0xd7, 0x7b, 0xd0, 0x1c, 0xa3, 0xb5, 0x33, 0x0a, 0xe7, 0x91, 0xda, 0x02, 0xe9, 0x39, 0xb9, 0x6d,
+	0x0b, 0xa4, 0x4d, 0x52, 0xa5, 0x3f, 0xe0, 0xec, 0xb5, 0x59, 0x3d, 0x07, 0x18, 0x47, 0x8f, 0x78,
+	0x1a, 0xf9, 0x21, 0x25, 0x9a, 0x54, 0x91, 0x58, 0x16, 0xe3, 0x12, 0xba, 0x09, 0x99, 0x10, 0xf2,
+	0x1e, 0x42, 0xff, 0xfb, 0x00, 0xbe, 0x28, 0xb6, 0x49, 0x16, 0xbb, 0x03, 0xb5, 0xc9, 0x36, 0xd5,
+	0x13, 0x68, 0x7d, 0x62, 0x3d, 0x38, 0xd9, 0x8e, 0xd6, 0x39, 0xc0, 0x47, 0x3f, 0xa6, 0x0b, 0x1e,
+	0xab, 0xb2, 0x8c, 0xf9, 0xcb, 0x0d, 0x9f, 0x5d, 0xf4, 0x88, 0x28, 0xbb, 0x1d, 0x25, 0x5a, 0x6d,
+	0x5f, 0x3a, 0xef, 0xe1, 0x94, 0xc7, 0xcc, 0x61, 0x2c, 0xa9, 0xfa, 0x3e, 0xae, 0x58, 0xb5, 0xc3,
+	0x7d, 0xee, 0x03, 0x38, 0xe6, 0x61, 0x72, 0xc9, 0x34, 0xf6, 0x25, 0x73, 0x01, 0xed, 0x7b, 0x82,
+	0x63, 0x83, 0x0a, 0xff, 0xe6, 0x3e, 0xff, 0x2b, 0x50, 0x78, 0x8c, 0x3c, 0xd4, 0xda, 0x07, 0x9d,
+	0x40, 0xeb, 0x16, 0x11, 0x3a, 0x8d, 0x9e, 0x70, 0xac, 0x01, 0x6f, 0x1d, 0x15, 0x80, 0xeb, 0x08,
+	0x5b, 0x9b, 0xf7, 0xd0, 0x5f, 0x12, 0x9c, 0xbd, 0xb2, 0x9d, 0x4b, 0xa3, 0x92, 0x6d, 0x27, 0xb9,
+	0xb4, 0x9d, 0xc4, 0xe0, 0x1b, 0xa0, 0x64, 0x5f, 0x42, 0x8a, 0xc5, 0x40, 0x89, 0x8d, 0xf3, 0xed,
+	0x9e, 0x8d, 0x93, 0xc5, 0xe3, 0x63, 0x2d, 0x3e, 0x30, 0x5a, 0x9d, 0x8d, 0xf5, 0xdb, 0x7f, 0x25,
+	0x90, 0x47, 0xd7, 0x2a, 0xc0, 0xa1, 0x69, 0x4d, 0x47, 0x93, 0x6b, 0xc5, 0x65, 0xff, 0x2d, 0x93,
+	0xff, 0x9f, 0xa9, 0xa7, 0xe2, 0x63, 0xf0, 0xe9, 0x66, 0x34, 0x19, 0x0f, 0x2d, 0xcb, 0xb8, 0x19,
+	0x2a, 0x98, 0x19, 0xd9, 0x9e, 0xcf, 0x1b, 0xe7, 0xaa, 0x22, 0x56, 0xf7, 0xe8, 0xe6, 0x17, 0xfb,
+	0xda, 0xb0, 0x0d, 0xc5, 0x63, 0x16, 0x96, 0x7b, 0x66, 0x59, 0xa8, 0x27, 0x62, 0x59, 0x31, 0x8b,
+	0x65, 0x1b, 0x77, 0xb6, 0xe2, 0x33, 0x53, 0xea, 0x24, 0x4c, 0x9f, 0xd5, 0x23, 0xb1, 0x69, 0x86,
+	0xf6, 0x9d, 0x31, 0xf9, 0x4d, 0x59, 0xb2, 0x33, 0xdb, 0x2e, 0xc9, 0x79, 0xa5, 0xbe, 0x11, 0x83,
+	0x99, 0xea, 0x3a, 0xf6, 0xfd, 0x64, 0x32, 0xbc, 0x75, 0x4c, 0x63, 0x6a, 0xdf, 0xdf, 0x0d, 0x95,
+	0x80, 0x39, 0xe4, 0x03, 0x97, 0x1d, 0xc2, 0xff, 0x02, 0x00, 0x00, 0xff, 0xff, 0x57, 0xfa, 0xff,
+	0xaf, 0xed, 0x09, 0x00, 0x00,
 }
