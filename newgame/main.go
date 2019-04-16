@@ -4,6 +4,7 @@ import (
 	"fight_tunnel_capture"
 	"gbframe"
 	"net"
+	"os"
 	"protof"
 	"rank"
 	"strconv"
@@ -42,7 +43,7 @@ func init() {
 	conn, err := redis.Dial("tcp", redis_addr)
 	if err != nil {
 		gbframe.Logger_Error.Println("redis connect err:", err)
-		return
+		os.Exit(1)
 	}
 	db.Gameredis.RedisClient = conn
 }
@@ -211,12 +212,21 @@ func HandleProto(id protof.Message1_ID, recMsg *protof.Message1, s *gamenet.Serv
 		time.Sleep(1 * time.Second) //暂停1下，免得消息粘连在一起
 		match_id_str := strconv.Itoa(player.MatchId)
 		room_sess := gbframe.MakeSession(match_id_str, "")
+		if player.MatchId == 0 {
+			room_sess = gbframe.MakeSession(match_id_str, player.Name)
+		}
+
 		fight_room, ok := fight_tunnel_capture.FightRooms[room_sess]
 		if !ok {
 			gbframe.Logger_Error.Println("This fight_room is not exist!room_sess:", room_sess)
 			return
 		}
-		fight_room.FightProsses(recMsg, player, room_sess)
+		if robot_csMsg, ok := fight_room.FightProsses(recMsg, player, room_sess); robot_csMsg != nil && !ok {
+			//如果是机器人比赛的话就会进入到下面
+			gbframe.Logger_Info.Println("11111111111111111111111111111111111")
+			fight_room.FightProsses(robot_csMsg, player, room_sess)
+			gbframe.Logger_Info.Println("666666666666666666666666666666666666666")
+		}
 	case protof.Message1_CS_GETRANK:
 		rank.SCRankData(player.Name, s)
 	default:

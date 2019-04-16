@@ -10,6 +10,7 @@ import (
 	//	"fmt"
 	//	"net"
 	//	"encoding/json"
+	"capture_robot"
 	"data"
 	"gbframe"
 	"protof"
@@ -22,8 +23,8 @@ import (
 const (
 	MAPMAX_X      = 20 //x轴大小
 	MAPMAX_Y      = 20 //y轴大小
-	MAXROUNDNUM   = 20 //总回合数
-	MAXPOWERLIMIT = 20 //能量总数
+	MAXROUNDNUM   = 40 //总回合数
+	MAXPOWERLIMIT = 6  //能量总数
 	ADDPOWER      = 2  //每回合增加的能量点
 )
 
@@ -86,10 +87,13 @@ func CreateFightRoom(playerlist []*data.Player) *FightRoom {
 	// 	y: 2,
 	// }
 	/////////////////////
-	fpA := initFightPlayer(playerlist[0], true, birth_point_A)
-	fpB := initFightPlayer(playerlist[1], false, birth_point_B)
+	fpA := initFightPlayer(playerlist[0], true, birth_point_A, birth_point_B)
+	fpB := initFightPlayer(playerlist[1], false, birth_point_B, birth_point_A)
 	ids := strconv.Itoa(playerlist[0].MatchId)
 	roomid := gbframe.MakeSession(ids, "")
+	if playerlist[0].MatchId == 0 {
+		roomid = gbframe.MakeSession(ids, playerlist[0].Name)
+	}
 	fr := &FightRoom{
 		Room:         roomid,
 		who:          true,
@@ -115,6 +119,15 @@ func MakeRandPoint() (int, int, int, int) {
 
 func initBirthPoint() (*Map, *Map) {
 	x_a, y_a, x_b, y_b := MakeRandPoint()
+	for {
+		if math.Abs(float64(y_a-y_b)) < 10 || math.Abs(float64(x_b-x_a)) < 10 {
+			x_a, y_a, x_b, y_b = MakeRandPoint()
+		} else {
+			break
+		}
+
+	}
+
 	var Map_a, Map_b Map
 	Map_a.x = x_a
 	Map_a.y = y_a
@@ -124,12 +137,12 @@ func initBirthPoint() (*Map, *Map) {
 
 }
 
-func initFightData(birth_point *Map) *FightData {
+func initFightData(birth_point, other_point *Map) *FightData {
 	var fmaps = []*Map{}
-	o_b_map := &Map{
-		x: -1,
-		y: -1,
-	}
+	// o_b_map := &Map{
+	// 	x: -1,
+	// 	y: -1,
+	// }
 	o_at_map := &Map{
 		x: -1,
 		y: -1,
@@ -143,7 +156,7 @@ func initFightData(birth_point *Map) *FightData {
 		ExcavatePoits:       fmaps,         //已挖掘的节点
 		OtherExcavatePoints: fmaps,         //对方已挖掘的节点
 		MovePoints:          fmaps,         //移动
-		OtherBirthPoint:     o_b_map,       //对方的出生节点
+		OtherBirthPoint:     other_point,   //对方的出生节点
 		UserAtPoint:         at_point,      //当前所在的节点
 		OtherUserAtPoint:    o_at_map,      //对方所在的节点 ps:（被发现才会有值，未被发现则节点为-1,-1）
 		Power:               MAXPOWERLIMIT, //能量点
@@ -152,13 +165,13 @@ func initFightData(birth_point *Map) *FightData {
 	return fd
 }
 
-func initFightPlayer(player *data.Player, side bool, birth_point *Map) *FightPlayer { //side表示是主队还是客队
+func initFightPlayer(player *data.Player, side bool, birth_point, other_point *Map) *FightPlayer { //side表示是主队还是客队
 	// x, y := 1, 1
 	// if side {
 	// 	x = MAPMAX_X
 	// 	y = MAPMAX_Y
 	// }
-	fight_data := initFightData(birth_point)
+	fight_data := initFightData(birth_point, other_point)
 	fp := &FightPlayer{
 		Playerdata: player,
 		Score:      0,
@@ -177,6 +190,10 @@ func FightReady(playerlist []*data.Player) {
 	}
 	ids := strconv.Itoa(playerlist[0].MatchId)
 	rsess := gbframe.MakeSession(ids, "")
+
+	if playerlist[0].MatchId == 0 {
+		rsess = gbframe.MakeSession(ids, playerlist[0].Name) // 创建与机器人对战的session
+	}
 	froom, ok := FightRooms[rsess]
 	if !ok {
 		froom = CreateFightRoom(playerlist)
@@ -190,7 +207,17 @@ func FightReady(playerlist []*data.Player) {
 
 func (fr *FightRoom) FightStart() {
 	Aserver := gamenet.NetServers[fr.FighterA.Playerdata.Server_sess]
-	Bserver := gamenet.NetServers[fr.FighterB.Playerdata.Server_sess]
+	robot_flag := false
+	Bserver, ok := gamenet.NetServers[fr.FighterB.Playerdata.Server_sess]
+	if !ok {
+		if fr.FighterB.Playerdata.IsRobot() {
+			Bserver = nil
+			robot_flag = true
+		} else {
+			return
+		}
+	}
+
 	init_Map_Info := &protof.Message1_Map_Info{
 		X: proto.Int32(int32(-1)),
 		Y: proto.Int32(int32(-1)),
@@ -207,8 +234,8 @@ func (fr *FightRoom) FightStart() {
 		Name:             &fr.FighterA.Playerdata.Name,
 		OtherName:        &fr.FighterB.Playerdata.Name,
 		BirthPoint:       BirthPoint_A,
-		OtherBirthPoint:  init_Map_Info,
-		UserAtPoint:      init_Map_Info,
+		OtherBirthPoint:  BirthPoint_B,
+		UserAtPoint:      BirthPoint_A,
 		OtherUserAtPoint: init_Map_Info,
 		LastPower:        proto.Int32(MAXPOWERLIMIT),
 		OtherPower:       proto.Int32(MAXPOWERLIMIT),
@@ -217,8 +244,8 @@ func (fr *FightRoom) FightStart() {
 		Name:             &fr.FighterB.Playerdata.Name,
 		OtherName:        &fr.FighterA.Playerdata.Name,
 		BirthPoint:       BirthPoint_B,
-		OtherBirthPoint:  init_Map_Info,
-		UserAtPoint:      init_Map_Info,
+		OtherBirthPoint:  BirthPoint_A,
+		UserAtPoint:      BirthPoint_B,
 		OtherUserAtPoint: init_Map_Info,
 		LastPower:        proto.Int32(MAXPOWERLIMIT),
 		OtherPower:       proto.Int32(MAXPOWERLIMIT),
@@ -250,7 +277,18 @@ func (fr *FightRoom) FightStart() {
 		ScFightDataTunnelCapture: B_sc_fight_data,
 	}
 	Aserver.WriteMessage(mid, A_sc_msg)
-	Bserver.WriteMessage(mid, B_sc_msg)
+	if robot_flag {
+		capture_robot.RobotFight(B_sc_msg)
+		gbframe.Logger_Info.Println("A server RemoteIP:", Aserver.Service.Conn.RemoteAddr().String(), "A name:", fr.FighterA.Playerdata.Name)
+		// gbframe.Logger_Info.Println("B server RemoteIP:", Bserver.Service.Conn.RemoteAddr().String(), "B name:", fr.FighterB.Playerdata.Name)
+		gbframe.Logger_Info.Println("A_sc_msg:", *A_sc_msg)
+		gbframe.Logger_Info.Println("Robot_sc_msg:", *B_sc_msg)
+		fr.SaveFightRecordData()
+		return
+	} else {
+		Bserver.WriteMessage(mid, B_sc_msg)
+	}
+
 	gbframe.Logger_Info.Println("A server RemoteIP:", Aserver.Service.Conn.RemoteAddr().String(), "A name:", fr.FighterA.Playerdata.Name)
 	gbframe.Logger_Info.Println("B server RemoteIP:", Bserver.Service.Conn.RemoteAddr().String(), "B name:", fr.FighterB.Playerdata.Name)
 	gbframe.Logger_Info.Println("A_sc_msg:", *A_sc_msg)
@@ -275,7 +313,7 @@ func (fr *FightRoom) SaveFightRecordData() {
 	db.Gameredis.FightRecordSave(b_fightdata, fr.RoundNum, fr.Room, fightTime)
 }
 
-func (fr *FightRoom) FightProsses(cs_msg *protof.Message1, player *data.Player, room_sess string) {
+func (fr *FightRoom) FightProsses(cs_msg *protof.Message1, player *data.Player, room_sess string) (*protof.Message1, bool) {
 	code := 0
 	gbframe.Logger_Info.Println("fight msg:", cs_msg)
 	gbframe.Logger_Info.Println("FightRoom Aname:", fr.FighterA.Name, " Bname:", fr.FighterB.Name)
@@ -289,13 +327,23 @@ func (fr *FightRoom) FightProsses(cs_msg *protof.Message1, player *data.Player, 
 			fr.FighterA.GetOtherBirthPointOrAtPoint(*fr.FighterB.Fight_Data.BirthPoint, *fr.FighterB.Fight_Data.UserAtPoint)
 		}
 
-	} else if !fr.who && player.Name == fr.FighterB.Name { //这个是主场玩家的消息
+	} else if !fr.who && player.Name == fr.FighterB.Name { //这个是客场玩家的消息
 		code = fr.FighterB.UpdateIsFightPlayerInfo(cs_msg)
 		if code == 0 {
 			fr.FighterA.UpdateNotFightPlayerInfo(fr.FighterB)
 			fr.FighterB.GetOtherBirthPointOrAtPoint(*fr.FighterA.Fight_Data.BirthPoint, *fr.FighterA.Fight_Data.UserAtPoint)
+		} else {
+			gbframe.Logger_Error.Println("UpdateIsFightPlayerInfo is error code:", code, "player.Name:", player.Name)
 		}
-
+	} else if !fr.who && fr.FighterB.Name == "robot" { //这个是客场机器人的消息
+		code = fr.FighterB.UpdateIsFightPlayerInfo(cs_msg)
+		gbframe.Logger_Info.Println("111111111111111111111111222222222222223333333333")
+		if code == 0 {
+			fr.FighterA.UpdateNotFightPlayerInfo(fr.FighterB)
+			fr.FighterB.GetOtherBirthPointOrAtPoint(*fr.FighterA.Fight_Data.BirthPoint, *fr.FighterA.Fight_Data.UserAtPoint)
+		} else {
+			gbframe.Logger_Error.Println("UpdateIsFightPlayerInfo is error code:", code, "player.Name:", player.Name)
+		}
 	} else {
 		gbframe.Logger_Error.Println("fight player is not right!fr.who:", fr.who, "player.Name:", player.Name)
 		code = 3
@@ -330,7 +378,23 @@ func (fr *FightRoom) FightProsses(cs_msg *protof.Message1, player *data.Player, 
 		}
 		fr.who = false
 		fr.FighterA.SendFightMsg(sc_msg_a)
-		fr.FighterB.SendFightMsg(sc_msg_b)
+		if fr.FighterB.Playerdata.IsRobot() {
+			gbframe.Logger_Info.Println("2222222222222222222222222222222222")
+			robot_csMsg, ok := capture_robot.RobotFight(sc_msg_b)
+			gbframe.Logger_Info.Println("33333333333333333333333333333333333333")
+			fr.SaveFightRecordData()
+			if ok {
+				gbframe.Logger_Info.Println("fight with the robot is over!player:", player)
+				// return robot_csMsg, ok
+				if fr.Result > 0 {
+					fr.CaulFightEnd()
+				}
+			}
+			return robot_csMsg, ok
+		} else {
+			fr.FighterB.SendFightMsg(sc_msg_b)
+		}
+
 	} else {
 		result_a, result_b := fr.GetResult(2)
 		sc_fp_data_a := ServerToProtoPoints(fr.FighterA, fr.FighterB.Name)
@@ -357,13 +421,16 @@ func (fr *FightRoom) FightProsses(cs_msg *protof.Message1, player *data.Player, 
 		}
 		fr.who = true
 		fr.FighterA.SendFightMsg(sc_msg_a)
-		fr.FighterB.SendFightMsg(sc_msg_b)
+		if !fr.FighterB.Playerdata.IsRobot() {
+			fr.FighterB.SendFightMsg(sc_msg_b)
+		}
 
 	}
 	fr.SaveFightRecordData()
 	if fr.Result > 0 {
 		fr.CaulFightEnd()
 	}
+	return nil, true
 }
 
 //判断输赢
@@ -522,8 +589,8 @@ func (fp *FightPlayer) CheckMovePointsAndGetAtPoint(points []*Map) bool {
 
 	//确定移动点都在挖掘点内
 	for _, point := range points {
-		if ok := IsInMapInfoList(fp.Fight_Data.ExcavatePoits, *point); !ok {
-			gbframe.Logger_Error.Println("CheckMovePointsRight is error:this point is not in ExcavatePoits!Name:", fp.Name)
+		if ok := IsInMapInfoList(fp.Fight_Data.ExcavatePoits, *point, *fp.Fight_Data.BirthPoint); !ok {
+			gbframe.Logger_Error.Println("CheckMovePointsRight is error:this point ", *point, " is not in ExcavatePoits!Name:", fp.Name)
 			return false
 		}
 	}
@@ -578,7 +645,7 @@ func ServerToProtoPoints(fp *FightPlayer, other_name string) *protof.Message1_Fi
 	//已挖掘的节点
 	excavate_points := ServerMapsToProtoMaps(fp.Fight_Data.ExcavatePoits)
 	other_excavate_points := ServerMapsToProtoMaps(fp.Fight_Data.OtherExcavatePoints)
-	move_points := ServerMapsToProtoMaps(fp.Fight_Data.MovePoints)
+	// move_points := ServerMapsToProtoMaps(fp.Fight_Data.MovePoints)
 
 	at_point := &protof.Message1_Map_Info{
 		X: proto.Int32(int32(fp.Fight_Data.UserAtPoint.x)),
@@ -612,9 +679,9 @@ func ServerToProtoPoints(fp *FightPlayer, other_name string) *protof.Message1_Fi
 	if len(other_excavate_points) > 0 {
 		fdtc_msg.OtherExcavatePoints = other_excavate_points
 	}
-	if len(move_points) > 0 {
-		fdtc_msg.MovePoints = move_points
-	}
+	// if len(move_points) > 0 {
+	// 	fdtc_msg.MovePoints = move_points
+	// }
 	return fdtc_msg
 }
 
@@ -643,7 +710,10 @@ func IsInMapLimit(points []*Map) bool {
 }
 
 //是否在挖掘点以外
-func IsInMapInfoList(points []*Map, point Map) bool {
+func IsInMapInfoList(points []*Map, point, birth Map) bool {
+	if point.x == birth.x && point.y == birth.y {
+		return true
+	}
 	for _, p := range points {
 		if p.x == point.x && p.y == point.y {
 			return true
@@ -660,16 +730,16 @@ func IsMovePointsEachForNear(tmp_point Map, points []*Map) bool {
 		tmp_y := int(math.Abs(float64(tmp_point.y - point.y)))
 		if tmp_x == 0 {
 			if tmp_y != 1 {
-				gbframe.Logger_Error.Println("tmp_point(", tmp_x, tmp_y, ") and point(", point.x, point.y, ") is not near!")
+				gbframe.Logger_Error.Println("tmp_point(", tmp_point.x, tmp_point.y, ") and point(", point.x, point.y, ") is not near!")
 				return false
 			}
 		} else if tmp_y == 0 {
 			if tmp_x != 1 {
-				gbframe.Logger_Error.Println("tmp_point(", tmp_x, tmp_y, ") and point(", point.x, point.y, ") is not near!")
+				gbframe.Logger_Error.Println("tmp_point(", tmp_point.x, tmp_point.y, ") and point(", point.x, point.y, ") is not near!")
 				return false
 			}
 		} else {
-			gbframe.Logger_Error.Println("tmp_point(", tmp_x, tmp_y, ") and point(", point.x, point.y, ") is not near!")
+			gbframe.Logger_Error.Println("tmp_point(", tmp_point.x, tmp_point.y, ") and point(", point.x, point.y, ") is not near!")
 			return false
 		}
 		tmp_point.x = point.x

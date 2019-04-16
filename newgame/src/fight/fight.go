@@ -92,6 +92,9 @@ func CreateFightRoom(playerlist []*data.Player) *FightRoom {
 	fpB := initFightPlayer(playerlist[1], false)
 	ids := strconv.Itoa(playerlist[0].MatchId)
 	roomid := gbframe.MakeSession(ids, "")
+	if playerlist[0].MatchId == 0 {
+		roomid = gbframe.MakeSession(ids, playerlist[0].Name)
+	}
 	fr := &FightRoom{
 		Room:         roomid,
 		who:          "",
@@ -108,6 +111,9 @@ func MatchFightRoom(player *data.Player) *FightRoom {
 	//	time.Sleep(10 * time.Second)
 	ids := strconv.Itoa(player.MatchId)
 	rsess := gbframe.MakeSession(ids, "")
+	if player.MatchId == 0 {
+		rsess = gbframe.MakeSession(ids, player.Name)
+	}
 	froom := FightRooms[rsess]
 	//	for _, p := range MatchPool {
 	//		if player.MatchId == p.MatchId && player.Name != p.Name {

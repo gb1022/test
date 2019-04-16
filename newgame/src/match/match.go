@@ -41,6 +41,9 @@ func CreateMatchRoom(player *data.Player) *MatchRoom {
 	// fpA := initFightPlayer(player, true)
 	ids := strconv.Itoa(player.MatchId)
 	roomid := gbframe.MakeSession(ids, "")
+	if player.MatchId == 0 {
+		roomid = gbframe.MakeSession(ids, player.Name)
+	}
 	playerlist := []*data.Player{}
 	playerlist = append(playerlist, player)
 	mr := &MatchRoom{
@@ -92,9 +95,9 @@ func CreateMatchRoom(player *data.Player) *MatchRoom {
 
 // }
 
-func MatchProcess(player *data.Player) (bool, *MatchRoom) {
+func MatchProcess(player *data.Player, str string) (bool, *MatchRoom) {
 	ids := strconv.Itoa(player.MatchId)
-	msess := gbframe.MakeSession(ids, "")
+	msess := gbframe.MakeSession(ids, str)
 	// playerlist := []*data.Player{}
 	if res, mroom := FindOrCreateMatchRoom(player, msess); res {
 		// FightReady(mroom)
@@ -105,12 +108,19 @@ func MatchProcess(player *data.Player) (bool, *MatchRoom) {
 }
 
 func StartMatch(cs_msg *protof.Message1, s *gamenet.Server) (bool, *MatchRoom) {
+
 	isstartA := true
 	isstartB := true
 	sc_fight_start := &protof.Message1_SC_FightStart{
 		IsstartA: &isstartA,
 		IsstartB: &isstartB,
 	}
+	robot := int(cs_msg.CsFightStart.GetTorobot())
+	if robot == 2 {
+		ok, mroom := matchRobot(cs_msg, s)
+		return ok, mroom
+	}
+
 	sc_msg := &protof.Message1{
 		ScFightStart: sc_fight_start,
 	}
@@ -134,7 +144,7 @@ func StartMatch(cs_msg *protof.Message1, s *gamenet.Server) (bool, *MatchRoom) {
 	}
 	// ids := strconv.Itoa(player.MatchId)
 	// rsess := gbframe.MakeSession(ids, "")
-	ok, mroom := MatchProcess(player)
+	ok, mroom := MatchProcess(player, "")
 	if !ok {
 		isstartB = false
 		mid := int(protof.Message1_SC_FIGHTSTART)
@@ -166,10 +176,59 @@ func DeleteMatchRoomPool(mroom *MatchRoom) {
 func FindMatchRoomByPlayer(player *data.Player) (bool, *MatchRoom) {
 	ids := strconv.Itoa(player.MatchId)
 	msess := gbframe.MakeSession(ids, "")
+	if ids == "0" {
+		msess = gbframe.MakeSession(ids, player.Name)
+	}
 	if mroom, ok := MatchRoomPool[msess]; ok {
 		return true, mroom
 	} else {
 		return false, nil
 	}
 
+}
+
+func matchRobot(cs_msg *protof.Message1, s *gamenet.Server) (bool, *MatchRoom) {
+	gbframe.Logger_Info.Println("Match robot begin!player sess :", s.Sess)
+	robot := data.CreateRobot()
+	isstartA := true
+	isstartB := true
+	sc_fight_start := &protof.Message1_SC_FightStart{
+		IsstartA: &isstartA,
+		IsstartB: &isstartB,
+	}
+	sc_msg := &protof.Message1{
+		ScFightStart: sc_fight_start,
+	}
+	sess := s.Sess
+	player := data.GetPlayerBySess(sess)
+	if player == nil {
+		gbframe.Logger_Info.Println("player is nil,sess:", sess)
+		isstartA = false
+	}
+	if player.MatchFlag {
+		gbframe.Logger_Error.Println("this player is matching,do not match again!player name:", player.Name)
+		isstartA = false
+		isstartB = false
+		mid := int(protof.Message1_SC_FIGHTSTART)
+		s.WriteMessage(mid, sc_msg)
+		return false, nil
+	}
+	ids := strconv.Itoa(player.MatchId)
+	msess := gbframe.MakeSession(ids, player.Name)
+	ok, mroom := FindOrCreateMatchRoom(player, msess)
+	ok, mroom = FindOrCreateMatchRoom(robot, msess) //将机器人加入匹配房间
+	if !ok {
+		isstartB = false
+		mid := int(protof.Message1_SC_FIGHTSTART)
+		gbframe.Logger_Info.Println("sc_msg", sc_msg)
+		s.WriteMessage(mid, sc_msg)
+		return false, nil
+	}
+
+	ser := gamenet.NetServers[player.Server_sess]
+	mid := int(protof.Message1_SC_FIGHTSTART)
+	gbframe.Logger_Info.Println("StartMatch server:", ser, " gamenet.NetServers:", gamenet.NetServers, " sess:", player.Server_sess)
+	ser.WriteMessage(mid, sc_msg)
+	player.MatchFlag = false
+	return true, mroom
 }

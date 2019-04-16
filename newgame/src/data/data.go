@@ -22,6 +22,7 @@ type Player struct {
 	MatchId     int
 	Score       int  //赢一场 得3分，平一场 得1分，输了 不得分
 	IsOnline    bool //是否在线
+	RobotFlag   bool //是否机器人
 }
 
 func (p *Player) IsPlayerExist() bool {
@@ -38,6 +39,10 @@ func (player *Player) InitPlayer(sess string, opt int) {
 	player.MatchFlag = false
 	player.MatchTime = 0
 	player.MatchId = opt
+}
+
+func (p *Player) IsRobot() bool {
+	return p.RobotFlag
 }
 
 var MatchPool = map[string]*Player{}
@@ -99,6 +104,7 @@ func CreatPlayer(name string, sess string, opt int) *Player {
 		MatchId:     opt,
 		Score:       0,
 		IsOnline:    true,
+		RobotFlag:   false,
 	}
 	return player
 
@@ -107,9 +113,10 @@ func CreatPlayer(name string, sess string, opt int) *Player {
 func CreateRobot() *Player { //创建机器人
 	rp := &Player{
 		Name:        "robot",
-		Server_sess: "robot1",
+		Server_sess: "robot_sess",
 		MatchTime:   0,
 		MatchId:     0,
+		RobotFlag:   true,
 	}
 	return rp
 }
