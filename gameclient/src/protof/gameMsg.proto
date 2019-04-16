@@ -81,6 +81,7 @@ message Message1
 	message CS_FightStart{
 		required bool isstart = 1;//是否开始
 		required int32 gametype = 2; //哪个游戏
+		optional int32 torobot = 3; // 是否与机器人对战，1：否，2：是
 	}
 	message SC_FightStart{
 		required bool isstartA = 1;//自己是否准备好了

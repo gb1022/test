@@ -13,8 +13,8 @@ import (
 const (
 	MAPMAX_X      = 20 //x轴大小
 	MAPMAX_Y      = 20 //y轴大小
-	MAXROUNDNUM   = 20 //总回合数
-	MAXPOWERLIMIT = 20 //能量总数
+	MAXROUNDNUM   = 40 //总回合数
+	MAXPOWERLIMIT = 6  //能量总数
 	ADDPOWER      = 2  //每回合增加的能量点
 )
 
@@ -110,7 +110,6 @@ func (fdc *Capture_fight_data) WriteExcavate() []*MapInfo {
 		}
 		excavate_maplist = append(excavate_maplist, e_mapinfo)
 	}
-
 	return excavate_maplist
 
 }
@@ -188,30 +187,40 @@ func ClientMapsToProtoMaps(maplist []*MapInfo) []*protof.Message1_Map_Info {
 	return map_infos
 }
 
-func showMapCaptureGame(sc_msg *protof.Message1) {
-	round := int(sc_msg.ScFightDataTunnelCapture.GetRound())
+func showMapCaptureGame(isFight bool, my_name, other_name string) {
+	Flush屏幕()
+	round := Fight_data_capture.round
 	fmt.Println("====================MAP================================")
-	m_b_x := int(sc_msg.ScFightDataTunnelCapture.FightStateData.BirthPoint.GetX())
-	m_b_y := int(sc_msg.ScFightDataTunnelCapture.FightStateData.BirthPoint.GetY())
-	o_b_x := int(sc_msg.ScFightDataTunnelCapture.FightStateData.OtherBirthPoint.GetX())
-	o_b_y := int(sc_msg.ScFightDataTunnelCapture.FightStateData.OtherBirthPoint.GetY())
-	my_cap_points := sc_msg.ScFightDataTunnelCapture.FightStateData.GetExcavatePoits()
-	other_cap_points := sc_msg.ScFightDataTunnelCapture.FightStateData.GetOtherExcavatePoints()
-	m_at_x := int(sc_msg.ScFightDataTunnelCapture.FightStateData.UserAtPoint.GetX())
-	m_at_y := int(sc_msg.ScFightDataTunnelCapture.FightStateData.UserAtPoint.GetY())
-	o_at_x := int(sc_msg.ScFightDataTunnelCapture.FightStateData.OtherUserAtPoint.GetX())
-	o_at_y := int(sc_msg.ScFightDataTunnelCapture.FightStateData.OtherUserAtPoint.GetY())
+	// m_b_x := int(sc_msg.ScFightDataTunnelCapture.FightStateData.BirthPoint.GetX())
+	// m_b_y := int(sc_msg.ScFightDataTunnelCapture.FightStateData.BirthPoint.GetY())
+	// o_b_x := int(sc_msg.ScFightDataTunnelCapture.FightStateData.OtherBirthPoint.GetX())
+	// o_b_y := int(sc_msg.ScFightDataTunnelCapture.FightStateData.OtherBirthPoint.GetY())
+	// my_cap_points := sc_msg.ScFightDataTunnelCapture.FightStateData.GetExcavatePoits()
+	// other_cap_points := sc_msg.ScFightDataTunnelCapture.FightStateData.GetOtherExcavatePoints()
+	// m_at_x := int(sc_msg.ScFightDataTunnelCapture.FightStateData.UserAtPoint.GetX())
+	// m_at_y := int(sc_msg.ScFightDataTunnelCapture.FightStateData.UserAtPoint.GetY())
+	// o_at_x := int(sc_msg.ScFightDataTunnelCapture.FightStateData.OtherUserAtPoint.GetX())
+	// o_at_y := int(sc_msg.ScFightDataTunnelCapture.FightStateData.OtherUserAtPoint.GetY())
+	m_b_x := Fight_data_capture.BirthPoint.x
+	m_b_y := Fight_data_capture.BirthPoint.y
+	o_b_x := Fight_data_capture.OtherBirthPoint.x
+	o_b_y := Fight_data_capture.OtherBirthPoint.y
+	my_cap_points := Fight_data_capture.ExcavatePoits
+	other_cap_points := Fight_data_capture.OtherExcavatePoints
+	m_at_x := Fight_data_capture.UserAtPoint.x
+	m_at_y := Fight_data_capture.UserAtPoint.y
+	o_at_x := Fight_data_capture.OtherUserAtPoint.x
+	o_at_y := Fight_data_capture.OtherUserAtPoint.y
 
 	fmt.Println("Fight Round:", round, "my birth:[", m_b_x, ",", m_b_y, "] other birth:[", o_b_x, ",", o_b_y, "]")
 	fmt.Printf("my at:[%d,%d],other at:[%d,%d]\n", m_at_x, m_at_y, o_at_x, o_at_y)
-	fmt.Println("*:自己的位置，+:对方的位置，%:自己的出生点，#:对方的出生点，@:自己挖的，&:对方挖的")
-	isFight := sc_msg.ScFightDataTunnelCapture.GetIsFight()
+	fmt.Println("A:自己的位置，B:对方的位置，@:自己的出生点，X:对方的出生点，a:自己挖的，b:对方挖的")
 
-	for i := 0; i < (MAP_Y + 1); i++ {
+	for i := 0; i < (MAPMAX_Y + 1); i++ {
 		if i > 0 {
 			fmt.Printf("%d", i-1)
 		}
-		for j := 0; j < MAP_X; j++ {
+		for j := 0; j < MAPMAX_X; j++ {
 			if i == 0 {
 				if j == 0 {
 					fmt.Printf("   %d", j)
@@ -224,33 +233,33 @@ func showMapCaptureGame(sc_msg *protof.Message1) {
 			} else {
 				if i >= 11 && j == 0 {
 					if j == (m_at_x) && i == (m_at_y+1) {
-						fmt.Print(" *")
+						fmt.Print(" A")
 					} else if i == o_at_y+1 && j == o_at_x {
-						fmt.Print(" +")
+						fmt.Print(" B")
 					} else if i == m_b_y+1 && j == m_b_x {
-						fmt.Print(" %")
-					} else if j == (o_b_x) && i == (o_b_y+1) {
-						fmt.Print(" #")
-					} else if IsExistList(my_cap_points, j, i-1) {
 						fmt.Print(" @")
+					} else if j == (o_b_x) && i == (o_b_y+1) {
+						fmt.Print(" X")
+					} else if IsExistList(my_cap_points, j, i-1) {
+						fmt.Print(" a")
 					} else if IsExistList(other_cap_points, j, i-1) {
-						fmt.Print(" &")
+						fmt.Print(" b")
 					} else {
 						fmt.Print(" .")
 					}
 				} else {
 					if j == (m_at_x) && i == (m_at_y+1) {
-						fmt.Print("  *")
+						fmt.Print("  A")
 					} else if i == o_at_y+1 && j == o_at_x {
-						fmt.Print("  +")
+						fmt.Print("  B")
 					} else if i == m_b_y+1 && j == m_b_x {
-						fmt.Print("  %")
-					} else if j == (o_b_x) && i == (o_b_y+1) {
-						fmt.Print("  #")
-					} else if IsExistList(my_cap_points, j, i-1) {
 						fmt.Print("  @")
+					} else if j == (o_b_x) && i == (o_b_y+1) {
+						fmt.Print("  X")
+					} else if IsExistList(my_cap_points, j, i-1) {
+						fmt.Print("  a")
 					} else if IsExistList(other_cap_points, j, i-1) {
-						fmt.Print("  &")
+						fmt.Print("  b")
 					} else {
 						fmt.Print("  .")
 					}
@@ -263,17 +272,23 @@ func showMapCaptureGame(sc_msg *protof.Message1) {
 	}
 	fmt.Println("====================================================")
 	fmt.Println("Are you fighting! :", isFight)
-	power := int(sc_msg.ScFightDataTunnelCapture.FightStateData.GetLastPower())
-	other_power := int(sc_msg.ScFightDataTunnelCapture.FightStateData.GetOtherPower())
-	my_name := sc_msg.ScFightDataTunnelCapture.FightStateData.GetName()
-	other_name := sc_msg.ScFightDataTunnelCapture.FightStateData.GetOtherName()
+	power := Fight_data_capture.Power
+	other_power := Fight_data_capture.OtherPower
+	// my_name := Fight_data_capture.
+	// other_name := sc_msg.ScFightDataTunnelCapture.FightStateData.GetOtherName()
 	fmt.Println("My Name:", my_name, "Power:", power, "| Other Name:", other_name, "Other Power:", other_power)
 	fmt.Println("====================Fight Show End================================")
 
 }
 
 func fight_tunnel_capture(sc_msg *protof.Message1, conn net.Conn) bool {
-	showMapCaptureGame(sc_msg)
+	fmt.Println("111111111111")
+	ScMsgToCaptureData(sc_msg)
+	fmt.Println("22222222222222222")
+	isFight := sc_msg.ScFightDataTunnelCapture.GetIsFight()
+	my_name := sc_msg.ScFightDataTunnelCapture.FightStateData.GetName()
+	other_name := sc_msg.ScFightDataTunnelCapture.FightStateData.GetOtherName()
+	showMapCaptureGame(isFight, my_name, other_name)
 	if sc_msg.ScFightDataTunnelCapture.GetResult() == 1 {
 		fmt.Println("Tunnel Capture Fight Over!\n  Congratulation！ You Win!!!!!!!!")
 		return true
@@ -283,17 +298,33 @@ func fight_tunnel_capture(sc_msg *protof.Message1, conn net.Conn) bool {
 	} else if sc_msg.ScFightDataTunnelCapture.GetResult() == 3 {
 		fmt.Println("Tunnel Capture Fight Over!\n   It is Draw!!!!!!!!!!")
 		return true
-	}
-	ScMsgToCaptureData(sc_msg)
-	if isFight := sc_msg.ScFightDataTunnelCapture.GetIsFight(); !isFight {
+	} else if sc_msg.ScFightDataTunnelCapture.GetResult() != 0 {
+		fmt.Println("sc_msg.ScFightDataTunnelCapture.GetResult is error ,result:", sc_msg.ScFightDataTunnelCapture.GetResult())
 		return false
 	}
-	e_points := Fight_data_capture.WriteExcavate()
-	Fight_data_capture.ExcavatePoits = append(Fight_data_capture.ExcavatePoits, e_points...)
-	m_points := Fight_data_capture.WriteMovePoints(len(e_points))
+	fmt.Println("33333333333333333")
 
-	fmt.Println("m_points:", e_points)
-	fmt.Println("e_points:", m_points)
+	if isFight := sc_msg.ScFightDataTunnelCapture.GetIsFight(); !isFight {
+		fmt.Println("sc_msg.ScFightDataTunnelCapture.GetIsFight() is ", isFight)
+		return false
+	}
+	fmt.Println("44444444444444444")
+	/////////////////////////手动游戏 ////////////////////////////////
+	e_points := Fight_data_capture.WriteExcavate()
+	use_power := len(e_points)
+	fmt.Println("55555555555555555555")
+	Fight_data_capture.ExcavatePoits = append(Fight_data_capture.ExcavatePoits, e_points...)
+	m_points := Fight_data_capture.WriteMovePoints(use_power)
+	/////////////////////////手动游戏 end ////////////////////////////////
+	fmt.Println("666666666666666666666666")
+
+	/////////////////////////自动游戏 ////////////////////////////////
+	// e_points := GameRobotProsses(isFight, my_name, other_name)
+	// m_points := Fight_data_capture.MovePoints
+	/////////////////////////自动游戏 end ////////////////////////////////
+
+	fmt.Println("e_points:", e_points)
+	fmt.Println("m_points:", m_points)
 	m_maps_proto := ClientMapsToProtoMaps(m_points)
 	e_maps_proto := ClientMapsToProtoMaps(e_points)
 	fight_capture_msg := &protof.Message1_CS_FightData_Tunnel_Capture{
@@ -304,24 +335,23 @@ func fight_tunnel_capture(sc_msg *protof.Message1, conn net.Conn) bool {
 		CsFightDataTunnelCapture: fight_capture_msg,
 	}
 	w_msg := WriteMessge(cs_msg, int(protof.Message1_CS_FIGHTDATA_TUNNEL_CAPTURE))
-	var ss string
-	fmt.Scanln(&ss)
-	fmt.Printf(ss)
+	// var ss string
+	// fmt.Scanln(&ss)
+	// fmt.Printf(ss)
 	conn.Write(w_msg)
 	return false
 }
 
-func IsExistList(points []*protof.Message1_Map_Info, x int, y int) bool {
+func IsExistList(points []*MapInfo, x int, y int) bool {
 	for _, point := range points {
-		p_x := int(point.GetX())
-		p_y := int(point.GetY())
+		p_x := point.x
+		p_y := point.y
 		if p_x == x && p_y == y {
 			return true
 		}
 	}
 	return false
 }
-
 func Flush屏幕() {
 	cmd := exec.Command("cmd", "/C", "cls")
 	cmd.Stdout = os.Stdout

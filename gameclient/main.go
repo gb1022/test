@@ -49,7 +49,7 @@ func ReadMessage(msg []byte) (*protof.Message1, int) {
 	if err != nil {
 		return nil, 0
 	}
-	fmt.Println("pMsg:", pMsg)
+	// fmt.Println("pMsg:", pMsg)
 	fmt.Println("msgId:", msgId)
 	sc_msg := &protof.Message1{}
 	err = proto.Unmarshal(pMsg, sc_msg)
@@ -77,10 +77,10 @@ func WriteMessge(msg *protof.Message1, mid int) []byte {
 	//	fmt.Println("sc_msg:", msg.String())
 	data, _ := proto.Marshal(msg)
 	//	n := len(data)
-	fmt.Println("data:", data)
+	// fmt.Println("data:", data)
 	//	mid := int(mid)
 	s_data := MarshalSendMsg(data, mid)
-	fmt.Println("s_data:", s_data)
+	// fmt.Println("s_data:", s_data)
 	return s_data
 }
 
@@ -90,7 +90,7 @@ func UnmarshalRecMsg(msg []byte) ([]byte, int, error) {
 	msgId := binary.BigEndian.Uint16(msg[4:6])
 	if msgLen != (uint32(len(msg)) - uint32(4)) {
 		fmt.Println("UnmalRecMsg is error,Msg lenth is wrong!,msgLen:", msgLen, "len(msg):", len(msg))
-		fmt.Println("UnmalRecMsg msg is :", msg)
+		// fmt.Println("UnmalRecMsg msg is :", msg)
 		return nil, 0, errors.New("Msg lenth is wrong")
 	}
 	rmsg := msg[6:]
@@ -166,11 +166,12 @@ func showMapAndPlayerState(sc_msg *protof.Message1) { //显示战斗界面和战
 	fmt.Println("====================Fight Show End================================")
 }
 
-func readyFight(conn net.Conn, game_type int) {
+func readyFight(conn net.Conn, game_type, robot int) {
 	read := true
 	cs_fightstart := &protof.Message1_CS_FightStart{
 		Isstart:  &read,
 		Gametype: proto.Int32(int32(game_type)),
+		Torobot:  proto.Int32(int32(robot)),
 	}
 	msg := &protof.Message1{
 		CsFightStart: cs_fightstart,
@@ -308,7 +309,7 @@ func main() {
 		//		proto.Unmarshal(msg, tmp_msg)
 		//		fmt.Println("tmp msg:", tmp_msg.String())
 
-		buf := make([]byte, 2048)
+		buf := make([]byte, 65535)
 		//		var buf []byte
 		n, err := conn.Read(buf)
 		if err != nil {
@@ -371,11 +372,16 @@ func main() {
 			fmt.Scanln(&choice)
 			if choice == 1 {
 				var ch int
+				var robot int
 				fmt.Print("1 map game; \n2 tunnel_capture_game\n")
 				fmt.Println("Which game do you choose?")
 				fmt.Scanln(&ch)
+				fmt.Print("1 with player?\n2 with robot?\n")
+				fmt.Println("Which type?")
+				fmt.Scanln(&robot)
 				fmt.Println("You are ready fight!")
-				readyFight(conn, ch)
+
+				readyFight(conn, ch, robot)
 				break
 			} else if choice == 2 {
 				SendRankMsg(conn)
